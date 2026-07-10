@@ -1,0 +1,67 @@
+"""Shared fixtures: a local DuckLake storage layout mimicking data.queria.io.
+
+The fixture builds real DuckLake catalogs on disk (a ``catalog`` metadata
+dataset plus a ``demo`` data dataset) so tests exercise the actual attach /
+auto-attach / query paths without network access.
+"""
+
+from __future__ import annotations
+
+import duckdb
+import pytest
+
+
+def _attach_writable(con: duckdb.DuckDBPyConnection, root: str, alias: str) -> None:
+    con.execute(
+        f"ATTACH 'ducklake:{root}/{alias}/ducklake.duckdb' AS {alias} "
+        f"(DATA_PATH '{root}/{alias}/ducklake.duckdb.files/')"
+    )
+
+
+@pytest.fixture(scope="session")
+def storage(tmp_path_factory: pytest.TempPathFactory) -> str:
+    root = tmp_path_factory.mktemp("storage")
+    (root / "catalog").mkdir()
+    (root / "demo").mkdir()
+
+    con = duckdb.connect()
+    con.execute("INSTALL ducklake; LOAD ducklake;")
+
+    _attach_writable(con, str(root), "catalog")
+    con.execute("""
+        CREATE TABLE catalog.main.mart_datasets AS
+        SELECT * FROM (VALUES
+            ('demo', 'Demo dataset', 'Numbers for testing'),
+            ('zipcode', 'Zipcode', 'Japanese postal codes')
+        ) t(datasource, title, description)
+    """)
+    con.execute("""
+        CREATE TABLE catalog.main.mart_nodes AS
+        SELECT * FROM (VALUES
+            ('demo', 'main', 'numbers', 'A tiny numbers table', 'model'),
+            ('demo', 'main', 'stg_numbers', 'Staging numbers', 'model'),
+            ('zipcode', 'main', 'zipcodes', 'Postal codes', 'model')
+        ) t(datasource, schema_name, name, description, resource_type)
+    """)
+    con.execute("""
+        CREATE TABLE catalog.main.mart_columns AS
+        SELECT * FROM (VALUES
+            ('demo', 'numbers', 'n', 'INTEGER', 'The number'),
+            ('demo', 'numbers', 'label', 'VARCHAR', 'Its label'),
+            ('demo', 'stg_numbers', 'n', 'INTEGER', 'The number'),
+            ('zipcode', 'zipcodes', 'code', 'VARCHAR', 'Postal code')
+        ) t(datasource, table_name, column_name, data_type, description)
+    """)
+    con.execute("DETACH catalog")
+
+    _attach_writable(con, str(root), "demo")
+    con.execute("""
+        CREATE TABLE demo.main.numbers AS
+        SELECT * FROM (VALUES
+            (1, 'one'), (2, 'two'), (3, 'three')
+        ) t(n, label)
+    """)
+    con.execute("DETACH demo")
+    con.close()
+
+    return str(root)

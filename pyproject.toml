@@ -1,0 +1,52 @@
+[project]
+name = "queria"
+version = "0.1.0"
+description = "Query Japanese open data on Queria (data.queria.io) from the terminal, Python, and MCP"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [{ name = "flo8s" }]
+keywords = ["opendata", "japan", "duckdb", "ducklake", "mcp"]
+dependencies = [
+    "duckdb>=1.5.4,<2.0",
+]
+
+[project.optional-dependencies]
+mcp = [
+    "mcp>=1.2",
+]
+
+[project.urls]
+Homepage = "https://docs.queria.io/"
+Documentation = "https://docs.queria.io/"
+Repository = "https://github.com/flo8s/queria-cli"
+Changelog = "https://docs.queria.io/resources/changelog/"
+
+[project.scripts]
+queria = "queria.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/queria"]
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+allow_zero_version = true
+major_on_zero = false
+
+[tool.pytest.ini_options]
+addopts = "-m 'not network'"
+markers = [
+    "network: tests that hit the production catalog at data.queria.io",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "mcp>=1.2",
+    "zensical>=0.0.29",
+    "mkdocstrings[python]>=1.0.3",
+]
