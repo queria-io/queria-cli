@@ -45,4 +45,4 @@ claude mcp add queria -- uvx --from 'queria[mcp]' queria mcp
 
 ## スキルとの関係
 
-Claude Code では配布用スキル（flo8s/queria-skill）も利用できます。スキルはカタログの構造や活用パターンの知識を含むため、Claude Code では スキル + CLI の組み合わせを推奨します。MCP サーバーは Claude Code 以外のクライアントで使う場合の選択肢です。
+Claude Code では配布用スキル（queria-io/queria-skill）も利用できます。スキルはカタログの構造や活用パターンの知識を含むため、Claude Code では スキル + CLI の組み合わせを推奨します。MCP サーバーは Claude Code 以外のクライアントで使う場合の選択肢です。

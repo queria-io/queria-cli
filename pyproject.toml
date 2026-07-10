@@ -19,7 +19,7 @@ mcp = [
 [project.urls]
 Homepage = "https://docs.queria.io/"
 Documentation = "https://docs.queria.io/"
-Repository = "https://github.com/flo8s/queria-cli"
+Repository = "https://github.com/queria-io/queria-cli"
 Changelog = "https://docs.queria.io/resources/changelog/"
 
 [project.scripts]

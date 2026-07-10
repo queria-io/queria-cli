@@ -2,8 +2,8 @@
 site_name = "Queria Docs"
 site_description = "日本のオープンデータカタログ Queria のドキュメント"
 site_url = "https://docs.queria.io/"
-repo_url = "https://github.com/flo8s/queria-cli"
-repo_name = "flo8s/queria-cli"
+repo_url = "https://github.com/queria-io/queria-cli"
+repo_name = "queria-io/queria-cli"
 
 [project.theme]
 features = [
