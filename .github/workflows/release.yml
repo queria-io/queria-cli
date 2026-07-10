@@ -1,0 +1,35 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: python-semantic-release/python-semantic-release@v9
+        id: release
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - if: steps.release.outputs.released == 'true'
+        uses: astral-sh/setup-uv@v7
+
+      - if: steps.release.outputs.released == 'true'
+        run: uv build
+
+      - if: steps.release.outputs.released == 'true'
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+      - if: steps.release.outputs.released == 'true'
+        run: gh workflow run docs.yml --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
