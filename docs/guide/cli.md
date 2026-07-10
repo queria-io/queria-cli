@@ -1,0 +1,49 @@
+---
+title: CLI ガイド
+---
+
+# CLI ガイド
+
+## コマンド体系
+
+| コマンド | 役割 |
+|---|---|
+| `queria list` | データセット一覧 |
+| `queria search <keyword>` | タイトル・説明のキーワード検索 |
+| `queria schema <dataset>` | データセットのテーブル一覧 |
+| `queria columns <dataset> [table]` | カラム一覧（table 指定で絞り込み） |
+| `queria sql "<query>"` | read-only SQL の実行 |
+| `queria mcp` | stdio MCP サーバーの起動 |
+
+## 出力形式
+
+`--format` で stdout の形式を選べます:
+
+- `table`（デフォルト）— 人間向けの整形テーブル
+- `csv` — ヘッダー付き CSV
+- `json` — レコードの JSON 配列
+- `jsonl` — 1行1レコードの JSON（ストリーム処理向け）
+
+```bash
+queria list --format json | jq '.[].datasource'
+```
+
+## ファイル出力
+
+`--out` で結果をファイルに書き出します。拡張子で形式が決まります（`.parquet` / `.csv`）。大きな結果は stdout ではなく `--out` を使ってください。
+
+```bash
+queria sql "SELECT * FROM e_stat.main.mart_population_prefecture" --out pop.parquet
+```
+
+## データセットの自動 ATTACH
+
+`sql` の中で `<dataset>.<schema>.<table>` を参照すると、未接続のデータセットは自動的に ATTACH されます。`information_schema` を引く場合など自動検出が効かないケースでは `--datasets` で明示できます:
+
+```bash
+queria sql "SELECT * FROM information_schema.tables WHERE table_catalog = 'jma'" --datasets jma
+```
+
+## read-only ガードについて
+
+`sql` は SELECT / WITH / DESCRIBE / SHOW / PRAGMA / EXPLAIN / SUMMARIZE で始まる文のみ受け付けます。これは事故防止のための簡易ガードであり、本質的な保護はカタログの READ_ONLY ATTACH です。公開カタログへの書き込みはエンジンレベルで失敗します。queria はサンドボックスではありません — 実行環境のローカルリソースへのアクセスは DuckDB の通常の権限に従います。

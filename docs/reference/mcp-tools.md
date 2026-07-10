@@ -1,0 +1,58 @@
+---
+title: MCP ツールリファレンス
+---
+
+# MCP ツールリファレンス
+
+`queria mcp` が公開するツールの仕様です。すべてのツールは共通の形式で結果を返します:
+
+```json
+{
+  "columns": ["datasource", "title"],
+  "rows": [["zipcode", "Zipcode"]],
+  "truncated": false,
+  "row_count": 1
+}
+```
+
+`truncated: true` の場合は `hint` フィールドに対処方法（クエリを絞る / CLI の `--out` を使う）が含まれます。
+
+## list_datasets
+
+公開されている全データセットを返します。引数はありません。
+
+## search_datasets
+
+| 引数 | 型 | 説明 |
+|---|---|---|
+| `keyword` | string | タイトル・説明への部分一致キーワード |
+
+## get_schema
+
+| 引数 | 型 | 説明 |
+|---|---|---|
+| `dataset` | string | データセット名 |
+
+データセットのテーブル・ビュー一覧（スキーマ名・テーブル名・説明）を返します。
+
+## get_columns
+
+| 引数 | 型 | 説明 |
+|---|---|---|
+| `dataset` | string | データセット名 |
+| `table` | string (省略可) | テーブル名で絞り込み |
+
+## query
+
+| 引数 | 型 | 説明 |
+|---|---|---|
+| `sql` | string | read-only の DuckDB SQL |
+| `max_rows` | int (デフォルト 100、最大 1000) | 返す行数の上限 |
+
+テーブルは `<dataset>.<schema>.<table>` で参照します。データセットは自動 ATTACH されます。
+
+結果は `max_rows` とペイロードサイズ約 1MB で打ち切られます。バルク抽出には CLI を使ってください:
+
+```bash
+queria sql "<query>" --out result.parquet
+```
