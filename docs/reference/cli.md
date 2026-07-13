@@ -28,11 +28,16 @@ queria list [--format FMT] [--out PATH]
 
 ## queria search
 
-タイトルと説明に対するキーワード検索です（大文字小文字を区別しない部分一致）。
+データセット・テーブル・カラムを横断するキーワード検索です（大文字小文字を区別しない部分一致）。データセットはタイトルと説明、テーブルとカラムは名前・タイトル・説明・タグに対してマッチします。
 
 ```bash
-queria search <keyword> [--format FMT] [--out PATH]
+queria search <keyword> [--type {dataset,table,column}] [--limit N] [--format FMT] [--out PATH]
 ```
+
+| オプション | 説明 |
+|---|---|
+| `--type` | エントリ種別で絞り込み（デフォルト: すべて） |
+| `--limit` | 最大件数（デフォルト: 50） |
 
 ## queria schema
 

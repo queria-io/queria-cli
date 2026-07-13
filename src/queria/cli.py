@@ -110,8 +110,18 @@ def build_parser() -> argparse.ArgumentParser:
     p_list = sub.add_parser("list", help="list available datasets")
     _add_output_args(p_list)
 
-    p_search = sub.add_parser("search", help="search datasets by keyword")
+    p_search = sub.add_parser(
+        "search", help="search datasets, tables and columns by keyword"
+    )
     p_search.add_argument("keyword")
+    p_search.add_argument(
+        "--type",
+        choices=core.SEARCH_ENTRY_TYPES,
+        help="filter by entry type (default: all)",
+    )
+    p_search.add_argument(
+        "--limit", type=int, default=50, help="max results (default: 50)"
+    )
     _add_output_args(p_search)
 
     p_schema = sub.add_parser("schema", help="list a dataset's tables")
@@ -157,7 +167,12 @@ def main(argv: Sequence[str] | None = None) -> None:
             _emit(conn, core.list_datasets_sql(), args.format, args.out)
         elif args.command == "search":
             _emit(
-                conn, core.search_datasets_sql(args.keyword), args.format, args.out
+                conn,
+                core.search_sql(
+                    args.keyword, entry_type=args.type, limit=args.limit
+                ),
+                args.format,
+                args.out,
             )
         elif args.command == "schema":
             _emit(conn, core.schema_sql(args.dataset), args.format, args.out)

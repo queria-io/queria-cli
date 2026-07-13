@@ -52,6 +52,21 @@ def storage(tmp_path_factory: pytest.TempPathFactory) -> str:
             ('zipcode', 'zipcodes', 'code', 'VARCHAR', 'Postal code')
         ) t(datasource, table_name, column_name, data_type, description)
     """)
+    con.execute("""
+        CREATE TABLE catalog.main.mart_search_entries AS
+        SELECT * FROM (VALUES
+            ('table', 'demo', 'main', 'numbers', 'Numbers', NULL,
+             'A tiny numbers table', 'numbers Numbers A tiny numbers table',
+             '/datasets/demo/main/numbers'),
+            ('column', 'demo', 'main', 'numbers', 'Numbers', 'label',
+             'Its label', 'label Its label numbers',
+             '/datasets/demo/main/numbers'),
+            ('column', 'zipcode', 'main', 'zipcodes', 'Zipcodes', 'code',
+             'Postal code', 'code Postal code zipcodes',
+             '/datasets/zipcode/main/zipcodes')
+        ) t(entry_type, datasource, schema_name, table_name, table_title,
+            column_name, description, search_text, href)
+    """)
     con.execute("DETACH catalog")
 
     _attach_writable(con, str(root), "demo")

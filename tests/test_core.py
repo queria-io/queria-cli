@@ -45,8 +45,37 @@ def test_writes_rejected_by_engine(storage: str) -> None:
 
 def test_search_escapes_quotes(storage: str) -> None:
     with queria.connect(storage) as conn:
-        rows = conn.sql(core.search_datasets_sql("o'brien")).fetchall()
+        rows = conn.sql(core.search_sql("o'brien")).fetchall()
     assert rows == []
+
+
+def test_search_spans_datasets_tables_and_columns(storage: str) -> None:
+    with queria.connect(storage) as conn:
+        rows = conn.sql(core.search_sql("postal")).fetchall()
+    # (entry_type, datasource, schema_name, table_name, column_name, description)
+    assert [(r[0], r[1], r[4]) for r in rows] == [
+        ("dataset", "zipcode", None),
+        ("column", "zipcode", "code"),
+    ]
+
+
+def test_search_filters_by_entry_type(storage: str) -> None:
+    with queria.connect(storage) as conn:
+        rows = conn.sql(core.search_sql("numbers", entry_type="table")).fetchall()
+    assert [(r[0], r[3]) for r in rows] == [("table", "numbers")]
+
+
+def test_search_applies_limit(storage: str) -> None:
+    with queria.connect(storage) as conn:
+        rows = conn.sql(core.search_sql("e", limit=1)).fetchall()
+    assert len(rows) == 1
+
+
+def test_search_rejects_bad_arguments() -> None:
+    with pytest.raises(ValueError):
+        core.search_sql("x", entry_type="schema")
+    with pytest.raises(ValueError):
+        core.search_sql("x", limit=0)
 
 
 def test_schema_and_columns_sql(storage: str) -> None:

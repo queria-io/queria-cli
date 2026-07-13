@@ -22,7 +22,20 @@ def test_list_json(storage: str, capsys: pytest.CaptureFixture) -> None:
 def test_search(storage: str, capsys: pytest.CaptureFixture) -> None:
     run_cli("--storage-url", storage, "search", "postal", "--format", "json")
     records = json.loads(capsys.readouterr().out)
-    assert [r["datasource"] for r in records] == ["zipcode"]
+    assert [(r["entry_type"], r["datasource"]) for r in records] == [
+        ("dataset", "zipcode"),
+        ("column", "zipcode"),
+    ]
+
+
+def test_search_type_and_limit(storage: str, capsys: pytest.CaptureFixture) -> None:
+    run_cli(
+        "--storage-url", storage,
+        "search", "numbers", "--type", "column", "--limit", "1",
+        "--format", "json",
+    )
+    records = json.loads(capsys.readouterr().out)
+    assert [r["column_name"] for r in records] == ["label"]
 
 
 def test_schema_table_format(storage: str, capsys: pytest.CaptureFixture) -> None:

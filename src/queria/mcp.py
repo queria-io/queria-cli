@@ -81,7 +81,7 @@ def build_server(storage: str = core.DEFAULT_STORAGE) -> Any:
         instructions=(
             "Read-only access to Queria (data.queria.io), a catalog of "
             "Japanese open data published as DuckLake. Start with "
-            "list_datasets or search_datasets, inspect tables with "
+            "list_datasets or search, inspect tables with "
             "get_schema / get_columns, then run DuckDB SQL with query. "
             "Reference tables as <dataset>.<schema>.<table>."
         ),
@@ -94,9 +94,18 @@ def build_server(storage: str = core.DEFAULT_STORAGE) -> Any:
         return _relation_payload(conn.sql(core.list_datasets_sql()))
 
     @server.tool()
-    def search_datasets(keyword: str) -> dict:
-        """Search datasets by keyword over their title and description."""
-        return _relation_payload(conn.sql(core.search_datasets_sql(keyword)))
+    def search(
+        keyword: str, entry_type: str | None = None, limit: int = 50
+    ) -> dict:
+        """Search datasets, tables and columns by keyword.
+
+        entry_type filters to 'dataset', 'table' or 'column' (default: all).
+        """
+        return _relation_payload(
+            conn.sql(
+                core.search_sql(keyword, entry_type=entry_type, limit=limit)
+            )
+        )
 
     @server.tool()
     def get_schema(dataset: str) -> dict:

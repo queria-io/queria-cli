@@ -217,14 +217,53 @@ def list_datasets_sql() -> str:
     )
 
 
-def search_datasets_sql(keyword: str) -> str:
-    """SQL searching datasets by keyword over title and description."""
+SEARCH_ENTRY_TYPES = ("dataset", "table", "column")
+
+
+def search_sql(
+    keyword: str, *, entry_type: str | None = None, limit: int = 50
+) -> str:
+    """SQL searching datasets, tables and columns by keyword.
+
+    Dataset hits match on title and description; table and column hits match
+    on the catalog's precomputed search text (name, title, description, tags).
+    """
+    if entry_type is not None and entry_type not in SEARCH_ENTRY_TYPES:
+        raise ValueError(
+            f"entry_type must be one of {', '.join(SEARCH_ENTRY_TYPES)} "
+            f"(got {entry_type!r})"
+        )
+    if limit < 1:
+        raise ValueError(f"limit must be a positive integer (got {limit!r})")
     kw = _quote(keyword)
+    type_filter = f"WHERE entry_type = '{entry_type}'" if entry_type else ""
     return f"""
-        SELECT datasource, title, description
-        FROM {CATALOG_ALIAS}.main.mart_datasets
-        WHERE lower(title || ' ' || COALESCE(description, '')) LIKE lower('%{kw}%')
-        ORDER BY datasource
+        WITH hits AS (
+            SELECT
+                'dataset' AS entry_type,
+                datasource,
+                NULL::VARCHAR AS schema_name,
+                NULL::VARCHAR AS table_name,
+                NULL::VARCHAR AS column_name,
+                description
+            FROM {CATALOG_ALIAS}.main.mart_datasets
+            WHERE lower(title || ' ' || COALESCE(description, ''))
+                LIKE lower('%{kw}%')
+            UNION ALL
+            SELECT
+                entry_type, datasource, schema_name, table_name, column_name,
+                description
+            FROM {CATALOG_ALIAS}.main.mart_search_entries
+            WHERE lower(search_text) LIKE lower('%{kw}%')
+        )
+        SELECT * FROM hits
+        {type_filter}
+        ORDER BY
+            CASE entry_type
+                WHEN 'dataset' THEN 0 WHEN 'table' THEN 1 ELSE 2
+            END,
+            datasource, schema_name, table_name, column_name
+        LIMIT {int(limit)}
     """
 
 

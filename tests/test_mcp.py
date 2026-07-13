@@ -57,11 +57,20 @@ def test_build_server_registers_tools(storage: str) -> None:
     names = {t.name for t in tools}
     assert names == {
         "list_datasets",
-        "search_datasets",
+        "search",
         "get_schema",
         "get_columns",
         "query",
     }
+
+
+def test_search_tool_spans_entry_types(storage: str) -> None:
+    server = mcp.build_server(storage)
+    import anyio
+
+    result = anyio.run(server.call_tool, "search", {"keyword": "postal"})
+    payload = json.loads(result[0].text)
+    assert [row[0] for row in payload["rows"]] == ["dataset", "column"]
 
 
 def test_query_tool_rejects_writes(storage: str) -> None:

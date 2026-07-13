@@ -21,6 +21,13 @@ def test_production_catalog_lists_datasets() -> None:
     assert "zipcode" in datasources
 
 
+def test_production_search_entries_exist() -> None:
+    with queria.connect() as conn:
+        rows = conn.sql(core.search_sql("人口", limit=5)).fetchall()
+    assert rows
+    assert {r[0] for r in rows} <= set(core.SEARCH_ENTRY_TYPES)
+
+
 def test_production_auto_attach_query() -> None:
     with queria.connect() as conn:
         count = conn.sql(
