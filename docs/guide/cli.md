@@ -23,6 +23,7 @@ title: CLI ガイド
 - `csv` — ヘッダー付き CSV
 - `json` — レコードの JSON 配列
 - `jsonl` — 1行1レコードの JSON（ストリーム処理向け）
+- `markdown` — Markdown テーブル（ドキュメントや記事への貼り付け向け）
 
 ```bash
 queria list --format json | jq '.[].datasource'

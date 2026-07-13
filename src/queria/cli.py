@@ -12,7 +12,7 @@ from typing import Any
 
 from queria import core
 
-FORMATS = ("table", "csv", "json", "jsonl")
+FORMATS = ("table", "csv", "json", "jsonl", "markdown")
 
 
 def _jsonable(value: Any) -> Any:
@@ -32,6 +32,18 @@ def _print_table(columns: Sequence[str], rows: list[tuple]) -> None:
     for row in text_rows:
         print(" | ".join(v.ljust(w) for v, w in zip(row, widths)))
     print(f"\n({len(text_rows)} rows)", file=sys.stderr)
+
+
+def _print_markdown(columns: Sequence[str], rows: list[tuple]) -> None:
+    def cell(value: Any) -> str:
+        if value is None:
+            return ""
+        return str(value).replace("|", "\\|").replace("\n", " ")
+
+    print("| " + " | ".join(cell(c) for c in columns) + " |")
+    print("|" + "|".join(" --- " for _ in columns) + "|")
+    for row in rows:
+        print("| " + " | ".join(cell(v) for v in row) + " |")
 
 
 def _emit(conn: core.Connection, sql: str, fmt: str, out: str | None) -> None:
@@ -65,6 +77,8 @@ def _emit(conn: core.Connection, sql: str, fmt: str, out: str | None) -> None:
         for row in rows:
             record = {c: _jsonable(v) for c, v in zip(columns, row)}
             print(json.dumps(record, ensure_ascii=False))
+    elif fmt == "markdown":
+        _print_markdown(columns, rows)
 
 
 def _add_output_args(parser: argparse.ArgumentParser) -> None:

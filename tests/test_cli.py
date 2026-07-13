@@ -40,6 +40,26 @@ def test_columns_filtered(storage: str, capsys: pytest.CaptureFixture) -> None:
     assert {r["column_name"] for r in records} == {"n", "label"}
 
 
+def test_list_markdown(storage: str, capsys: pytest.CaptureFixture) -> None:
+    run_cli("--storage-url", storage, "list", "--format", "markdown")
+    lines = capsys.readouterr().out.strip().splitlines()
+    assert lines[0] == "| datasource | title | description |"
+    assert lines[1] == "| --- | --- | --- |"
+    assert lines[2] == "| demo | Demo dataset | Numbers for testing |"
+
+
+def test_markdown_escapes_pipes_and_newlines(
+    storage: str, capsys: pytest.CaptureFixture
+) -> None:
+    run_cli(
+        "--storage-url", storage,
+        "sql", "SELECT 'a|b' AS x, 'c\nd' AS y",
+        "--format", "markdown",
+    )
+    lines = capsys.readouterr().out.strip().splitlines()
+    assert lines[2] == "| a\\|b | c d |"
+
+
 def test_sql_auto_attach_csv(storage: str, capsys: pytest.CaptureFixture) -> None:
     run_cli(
         "--storage-url", storage,

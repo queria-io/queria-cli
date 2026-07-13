@@ -15,7 +15,7 @@ title: CLI リファレンス
 
 | オプション | 説明 |
 |---|---|
-| `--format {table,csv,json,jsonl}` | stdout の形式（デフォルト: `table`） |
+| `--format {table,csv,json,jsonl,markdown}` | stdout の形式（デフォルト: `table`） |
 | `--out PATH` | 結果を `.csv` / `.parquet` ファイルに書き出す（`--format` は無視される） |
 
 ## queria list
