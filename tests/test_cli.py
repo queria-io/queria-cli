@@ -22,7 +22,27 @@ def test_list_json(storage: str, capsys: pytest.CaptureFixture) -> None:
 def test_search(storage: str, capsys: pytest.CaptureFixture) -> None:
     run_cli("--storage-url", storage, "search", "postal", "--format", "json")
     records = json.loads(capsys.readouterr().out)
-    assert [r["datasource"] for r in records] == ["zipcode"]
+    assert [(r["entry_type"], r["datasource"]) for r in records] == [
+        ("dataset", "zipcode"),
+        ("column", "zipcode"),
+    ]
+
+
+def test_search_type_and_limit(storage: str, capsys: pytest.CaptureFixture) -> None:
+    run_cli(
+        "--storage-url", storage,
+        "search", "numbers", "--type", "column", "--limit", "1",
+        "--format", "json",
+    )
+    records = json.loads(capsys.readouterr().out)
+    assert [r["column_name"] for r in records] == ["label"]
+
+
+def test_info(storage: str, capsys: pytest.CaptureFixture) -> None:
+    run_cli("--storage-url", storage, "info", "demo", "--format", "json")
+    fields = {r["field"]: r["value"] for r in json.loads(capsys.readouterr().out)}
+    assert fields["datasource"] == "demo"
+    assert fields["license"] == "CC-BY-4.0"
 
 
 def test_schema_table_format(storage: str, capsys: pytest.CaptureFixture) -> None:
@@ -40,6 +60,26 @@ def test_columns_filtered(storage: str, capsys: pytest.CaptureFixture) -> None:
     assert {r["column_name"] for r in records} == {"n", "label"}
 
 
+def test_list_markdown(storage: str, capsys: pytest.CaptureFixture) -> None:
+    run_cli("--storage-url", storage, "list", "--format", "markdown")
+    lines = capsys.readouterr().out.strip().splitlines()
+    assert lines[0] == "| datasource | title | description |"
+    assert lines[1] == "| --- | --- | --- |"
+    assert lines[2] == "| demo | Demo dataset | Numbers for testing |"
+
+
+def test_markdown_escapes_pipes_and_newlines(
+    storage: str, capsys: pytest.CaptureFixture
+) -> None:
+    run_cli(
+        "--storage-url", storage,
+        "sql", "SELECT 'a|b' AS x, 'c\nd' AS y",
+        "--format", "markdown",
+    )
+    lines = capsys.readouterr().out.strip().splitlines()
+    assert lines[2] == "| a\\|b | c d |"
+
+
 def test_sql_auto_attach_csv(storage: str, capsys: pytest.CaptureFixture) -> None:
     run_cli(
         "--storage-url", storage,
@@ -49,6 +89,13 @@ def test_sql_auto_attach_csv(storage: str, capsys: pytest.CaptureFixture) -> Non
     lines = capsys.readouterr().out.strip().splitlines()
     assert lines[0] == "n,label"
     assert lines[1] == "1,one"
+
+
+def test_summarize(storage: str, capsys: pytest.CaptureFixture) -> None:
+    run_cli("--storage-url", storage, "summarize", "demo.numbers", "--format", "json")
+    records = json.loads(capsys.readouterr().out)
+    by_column = {r["column_name"]: r for r in records}
+    assert by_column["n"]["count"] == 3
 
 
 def test_sql_rejects_writes(storage: str) -> None:

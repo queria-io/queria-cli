@@ -217,14 +217,90 @@ def list_datasets_sql() -> str:
     )
 
 
-def search_datasets_sql(keyword: str) -> str:
-    """SQL searching datasets by keyword over title and description."""
+SEARCH_ENTRY_TYPES = ("dataset", "table", "column")
+
+
+def search_sql(
+    keyword: str, *, entry_type: str | None = None, limit: int = 50
+) -> str:
+    """SQL searching datasets, tables and columns by keyword.
+
+    Dataset hits match on title and description; table and column hits match
+    on the catalog's precomputed search text (name, title, description, tags).
+    """
+    if entry_type is not None and entry_type not in SEARCH_ENTRY_TYPES:
+        raise ValueError(
+            f"entry_type must be one of {', '.join(SEARCH_ENTRY_TYPES)} "
+            f"(got {entry_type!r})"
+        )
+    if limit < 1:
+        raise ValueError(f"limit must be a positive integer (got {limit!r})")
     kw = _quote(keyword)
+    type_filter = f"WHERE entry_type = '{entry_type}'" if entry_type else ""
     return f"""
-        SELECT datasource, title, description
-        FROM {CATALOG_ALIAS}.main.mart_datasets
-        WHERE lower(title || ' ' || COALESCE(description, '')) LIKE lower('%{kw}%')
-        ORDER BY datasource
+        WITH hits AS (
+            SELECT
+                'dataset' AS entry_type,
+                datasource,
+                NULL::VARCHAR AS schema_name,
+                NULL::VARCHAR AS table_name,
+                NULL::VARCHAR AS column_name,
+                description
+            FROM {CATALOG_ALIAS}.main.mart_datasets
+            WHERE lower(title || ' ' || COALESCE(description, ''))
+                LIKE lower('%{kw}%')
+            UNION ALL
+            SELECT
+                entry_type, datasource, schema_name, table_name, column_name,
+                description
+            FROM {CATALOG_ALIAS}.main.mart_search_entries
+            WHERE lower(search_text) LIKE lower('%{kw}%')
+        )
+        SELECT * FROM hits
+        {type_filter}
+        ORDER BY
+            CASE entry_type
+                WHEN 'dataset' THEN 0 WHEN 'table' THEN 1 ELSE 2
+            END,
+            datasource, schema_name, table_name, column_name
+        LIMIT {int(limit)}
+    """
+
+
+# Metadata fields exposed by info_sql, in display order. ``readme`` is opt-in
+# because it can be long.
+_INFO_FIELDS = (
+    "datasource",
+    "title",
+    "description",
+    "license",
+    "license_url",
+    "source_url",
+    "repository_url",
+    "schedule",
+    "tags_json",
+    "schemas_json",
+    "dbt_generated_at",
+)
+
+
+def info_sql(dataset: str, *, include_readme: bool = False) -> str:
+    """SQL returning one dataset's metadata as (field, value) rows.
+
+    Values are cast to VARCHAR so UNPIVOT can stack heterogeneous columns;
+    fields whose value is NULL are omitted from the result.
+    """
+    _validate_ident(dataset)
+    fields = _INFO_FIELDS + (("readme",) if include_readme else ())
+    casts = ", ".join(f"CAST({f} AS VARCHAR) AS {f}" for f in fields)
+    return f"""
+        UNPIVOT (
+            SELECT {casts}
+            FROM {CATALOG_ALIAS}.main.mart_datasets
+            WHERE datasource = '{dataset}'
+        )
+        ON {", ".join(fields)}
+        INTO NAME field VALUE value
     """
 
 
@@ -237,6 +313,26 @@ def schema_sql(dataset: str) -> str:
         WHERE datasource = '{dataset}' AND resource_type = 'model'
         ORDER BY schema_name, name
     """
+
+
+def summarize_sql(table: str) -> str:
+    """SQL summarizing a table (row count, min/max, null ratio per column).
+
+    Accepts ``dataset.schema.table`` or ``dataset.table`` (the schema
+    defaults to ``main``). Note that SUMMARIZE scans the whole table, which
+    can be slow over HTTP for large tables.
+    """
+    parts = table.split(".")
+    if len(parts) == 2:
+        parts = [parts[0], "main", parts[1]]
+    if len(parts) != 3:
+        raise ValueError(
+            f"expected <dataset>.<schema>.<table> or <dataset>.<table> "
+            f"(got {table!r})"
+        )
+    for part in parts:
+        _validate_ident(part)
+    return f"SUMMARIZE {'.'.join(parts)}"
 
 
 def columns_sql(dataset: str, table: str | None = None) -> str:

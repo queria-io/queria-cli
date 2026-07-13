@@ -12,7 +12,7 @@ from typing import Any
 
 from queria import core
 
-FORMATS = ("table", "csv", "json", "jsonl")
+FORMATS = ("table", "csv", "json", "jsonl", "markdown")
 
 
 def _jsonable(value: Any) -> Any:
@@ -32,6 +32,18 @@ def _print_table(columns: Sequence[str], rows: list[tuple]) -> None:
     for row in text_rows:
         print(" | ".join(v.ljust(w) for v, w in zip(row, widths)))
     print(f"\n({len(text_rows)} rows)", file=sys.stderr)
+
+
+def _print_markdown(columns: Sequence[str], rows: list[tuple]) -> None:
+    def cell(value: Any) -> str:
+        if value is None:
+            return ""
+        return str(value).replace("|", "\\|").replace("\n", " ")
+
+    print("| " + " | ".join(cell(c) for c in columns) + " |")
+    print("|" + "|".join(" --- " for _ in columns) + "|")
+    for row in rows:
+        print("| " + " | ".join(cell(v) for v in row) + " |")
 
 
 def _emit(conn: core.Connection, sql: str, fmt: str, out: str | None) -> None:
@@ -65,6 +77,8 @@ def _emit(conn: core.Connection, sql: str, fmt: str, out: str | None) -> None:
         for row in rows:
             record = {c: _jsonable(v) for c, v in zip(columns, row)}
             print(json.dumps(record, ensure_ascii=False))
+    elif fmt == "markdown":
+        _print_markdown(columns, rows)
 
 
 def _add_output_args(parser: argparse.ArgumentParser) -> None:
@@ -96,9 +110,28 @@ def build_parser() -> argparse.ArgumentParser:
     p_list = sub.add_parser("list", help="list available datasets")
     _add_output_args(p_list)
 
-    p_search = sub.add_parser("search", help="search datasets by keyword")
+    p_search = sub.add_parser(
+        "search", help="search datasets, tables and columns by keyword"
+    )
     p_search.add_argument("keyword")
+    p_search.add_argument(
+        "--type",
+        choices=core.SEARCH_ENTRY_TYPES,
+        help="filter by entry type (default: all)",
+    )
+    p_search.add_argument(
+        "--limit", type=int, default=50, help="max results (default: 50)"
+    )
     _add_output_args(p_search)
+
+    p_info = sub.add_parser(
+        "info", help="show a dataset's metadata (license, source, schemas)"
+    )
+    p_info.add_argument("dataset")
+    p_info.add_argument(
+        "--readme", action="store_true", help="include the dataset README"
+    )
+    _add_output_args(p_info)
 
     p_schema = sub.add_parser("schema", help="list a dataset's tables")
     p_schema.add_argument("dataset")
@@ -108,6 +141,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_columns.add_argument("dataset")
     p_columns.add_argument("table", nargs="?", help="filter to one table")
     _add_output_args(p_columns)
+
+    p_summarize = sub.add_parser(
+        "summarize",
+        help="show per-column statistics for a table (scans the whole table)",
+    )
+    p_summarize.add_argument(
+        "table", help="<dataset>.<schema>.<table> (schema defaults to main)"
+    )
+    _add_output_args(p_summarize)
 
     p_sql = sub.add_parser("sql", help="run a read-only SQL query")
     p_sql.add_argument("query")
@@ -143,7 +185,19 @@ def main(argv: Sequence[str] | None = None) -> None:
             _emit(conn, core.list_datasets_sql(), args.format, args.out)
         elif args.command == "search":
             _emit(
-                conn, core.search_datasets_sql(args.keyword), args.format, args.out
+                conn,
+                core.search_sql(
+                    args.keyword, entry_type=args.type, limit=args.limit
+                ),
+                args.format,
+                args.out,
+            )
+        elif args.command == "info":
+            _emit(
+                conn,
+                core.info_sql(args.dataset, include_readme=args.readme),
+                args.format,
+                args.out,
             )
         elif args.command == "schema":
             _emit(conn, core.schema_sql(args.dataset), args.format, args.out)
@@ -154,6 +208,8 @@ def main(argv: Sequence[str] | None = None) -> None:
                 args.format,
                 args.out,
             )
+        elif args.command == "summarize":
+            _emit(conn, core.summarize_sql(args.table), args.format, args.out)
         elif args.command == "sql":
             if not core.is_read_only(args.query):
                 sys.exit(

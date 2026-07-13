@@ -17,9 +17,11 @@ Python 3.10+ が必要です。
 
 ```bash
 queria list                              # データセット一覧
-queria search 人口                        # キーワード検索
+queria search 人口                        # データセット・テーブル・カラムの横断検索
+queria info e_stat                       # メタデータ（ライセンス・出典など）
 queria schema e_stat                     # テーブル一覧
 queria columns e_stat mart_population    # カラム一覧
+queria summarize zipcode.main.zipcodes   # カラム統計（全件スキャン）
 queria sql "SELECT * FROM zipcode.main.zipcodes LIMIT 10"
 queria sql "SELECT * FROM zipcode.main.zipcodes" --out zipcodes.parquet
 ```

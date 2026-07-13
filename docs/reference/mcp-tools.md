@@ -21,11 +21,24 @@ title: MCP ツールリファレンス
 
 公開されている全データセットを返します。引数はありません。
 
-## search_datasets
+## search
 
 | 引数 | 型 | 説明 |
 |---|---|---|
-| `keyword` | string | タイトル・説明への部分一致キーワード |
+| `keyword` | string | 部分一致キーワード |
+| `entry_type` | string (省略可) | `dataset` / `table` / `column` で絞り込み |
+| `limit` | int (デフォルト 50) | 最大件数 |
+
+データセット・テーブル・カラムを横断して検索します。データセットはタイトルと説明、テーブルとカラムは名前・タイトル・説明・タグに対してマッチします。
+
+## get_dataset_info
+
+| 引数 | 型 | 説明 |
+|---|---|---|
+| `dataset` | string | データセット名 |
+| `include_readme` | bool (デフォルト false) | README 本文も含める |
+
+データセットのメタデータ（ライセンス・出典 URL・スキーマ一覧など）を `field` / `value` の行で返します。値が NULL のフィールドは省略されます。
 
 ## get_schema
 

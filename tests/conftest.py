@@ -31,9 +31,21 @@ def storage(tmp_path_factory: pytest.TempPathFactory) -> str:
     con.execute("""
         CREATE TABLE catalog.main.mart_datasets AS
         SELECT * FROM (VALUES
-            ('demo', 'Demo dataset', 'Numbers for testing'),
-            ('zipcode', 'Zipcode', 'Japanese postal codes')
-        ) t(datasource, title, description)
+            ('demo', 'Demo dataset', 'Numbers for testing', 'cover.png',
+             'https://example.com/demo/ducklake.duckdb',
+             'https://github.com/example/demo', 'daily', '["test"]',
+             'CC-BY-4.0', 'https://example.com/license',
+             'https://example.com/source', '["main"]', '1.8.0',
+             TIMESTAMP '2026-01-01 00:00:00', 'inv-1', '# Demo readme'),
+            ('zipcode', 'Zipcode', 'Japanese postal codes', NULL,
+             NULL, NULL, NULL, NULL,
+             'CC-BY-4.0', NULL,
+             NULL, '["main"]', NULL,
+             NULL, NULL, NULL)
+        ) t(datasource, title, description, cover, ducklake_url,
+            repository_url, schedule, tags_json, license, license_url,
+            source_url, schemas_json, dbt_version, dbt_generated_at,
+            dbt_invocation_id, readme)
     """)
     con.execute("""
         CREATE TABLE catalog.main.mart_nodes AS
@@ -51,6 +63,21 @@ def storage(tmp_path_factory: pytest.TempPathFactory) -> str:
             ('demo', 'stg_numbers', 'n', 'INTEGER', 'The number'),
             ('zipcode', 'zipcodes', 'code', 'VARCHAR', 'Postal code')
         ) t(datasource, table_name, column_name, data_type, description)
+    """)
+    con.execute("""
+        CREATE TABLE catalog.main.mart_search_entries AS
+        SELECT * FROM (VALUES
+            ('table', 'demo', 'main', 'numbers', 'Numbers', NULL,
+             'A tiny numbers table', 'numbers Numbers A tiny numbers table',
+             '/datasets/demo/main/numbers'),
+            ('column', 'demo', 'main', 'numbers', 'Numbers', 'label',
+             'Its label', 'label Its label numbers',
+             '/datasets/demo/main/numbers'),
+            ('column', 'zipcode', 'main', 'zipcodes', 'Zipcodes', 'code',
+             'Postal code', 'code Postal code zipcodes',
+             '/datasets/zipcode/main/zipcodes')
+        ) t(entry_type, datasource, schema_name, table_name, table_title,
+            column_name, description, search_text, href)
     """)
     con.execute("DETACH catalog")
 

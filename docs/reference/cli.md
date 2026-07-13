@@ -15,7 +15,7 @@ title: CLI リファレンス
 
 | オプション | 説明 |
 |---|---|
-| `--format {table,csv,json,jsonl}` | stdout の形式（デフォルト: `table`） |
+| `--format {table,csv,json,jsonl,markdown}` | stdout の形式（デフォルト: `table`） |
 | `--out PATH` | 結果を `.csv` / `.parquet` ファイルに書き出す（`--format` は無視される） |
 
 ## queria list
@@ -28,11 +28,28 @@ queria list [--format FMT] [--out PATH]
 
 ## queria search
 
-タイトルと説明に対するキーワード検索です（大文字小文字を区別しない部分一致）。
+データセット・テーブル・カラムを横断するキーワード検索です（大文字小文字を区別しない部分一致）。データセットはタイトルと説明、テーブルとカラムは名前・タイトル・説明・タグに対してマッチします。
 
 ```bash
-queria search <keyword> [--format FMT] [--out PATH]
+queria search <keyword> [--type {dataset,table,column}] [--limit N] [--format FMT] [--out PATH]
 ```
+
+| オプション | 説明 |
+|---|---|
+| `--type` | エントリ種別で絞り込み（デフォルト: すべて） |
+| `--limit` | 最大件数（デフォルト: 50） |
+
+## queria info
+
+データセットのメタデータ（ライセンス・出典 URL・リポジトリ・スキーマ一覧・更新日時など）を `field` / `value` の 2 列で表示します。値が NULL のフィールドは省略されます。
+
+```bash
+queria info <dataset> [--readme] [--format FMT] [--out PATH]
+```
+
+| オプション | 説明 |
+|---|---|
+| `--readme` | データセットの README 本文も含める |
 
 ## queria schema
 
@@ -49,6 +66,16 @@ queria schema <dataset> [--format FMT] [--out PATH]
 ```bash
 queria columns <dataset> [table] [--format FMT] [--out PATH]
 ```
+
+## queria summarize
+
+テーブルのカラム統計（件数・min/max・NULL 率・近似ユニーク数など、DuckDB の `SUMMARIZE`）を表示します。テーブル全体をスキャンするため、大きなテーブルでは時間と通信量がかかります。
+
+```bash
+queria summarize <dataset>.<schema>.<table> [--format FMT] [--out PATH]
+```
+
+スキーマを省略した `<dataset>.<table>` は `main` スキーマとして解釈されます。
 
 ## queria sql
 

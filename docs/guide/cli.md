@@ -9,9 +9,11 @@ title: CLI ガイド
 | コマンド | 役割 |
 |---|---|
 | `queria list` | データセット一覧 |
-| `queria search <keyword>` | タイトル・説明のキーワード検索 |
+| `queria search <keyword>` | データセット・テーブル・カラムの横断キーワード検索 |
+| `queria info <dataset>` | データセットのメタデータ（ライセンス・出典など） |
 | `queria schema <dataset>` | データセットのテーブル一覧 |
 | `queria columns <dataset> [table]` | カラム一覧（table 指定で絞り込み） |
+| `queria summarize <table>` | テーブルのカラム統計（全件スキャン） |
 | `queria sql "<query>"` | read-only SQL の実行 |
 | `queria mcp` | stdio MCP サーバーの起動 |
 
@@ -23,6 +25,7 @@ title: CLI ガイド
 - `csv` — ヘッダー付き CSV
 - `json` — レコードの JSON 配列
 - `jsonl` — 1行1レコードの JSON（ストリーム処理向け）
+- `markdown` — Markdown テーブル（ドキュメントや記事への貼り付け向け）
 
 ```bash
 queria list --format json | jq '.[].datasource'
