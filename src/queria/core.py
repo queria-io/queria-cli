@@ -315,6 +315,26 @@ def schema_sql(dataset: str) -> str:
     """
 
 
+def summarize_sql(table: str) -> str:
+    """SQL summarizing a table (row count, min/max, null ratio per column).
+
+    Accepts ``dataset.schema.table`` or ``dataset.table`` (the schema
+    defaults to ``main``). Note that SUMMARIZE scans the whole table, which
+    can be slow over HTTP for large tables.
+    """
+    parts = table.split(".")
+    if len(parts) == 2:
+        parts = [parts[0], "main", parts[1]]
+    if len(parts) != 3:
+        raise ValueError(
+            f"expected <dataset>.<schema>.<table> or <dataset>.<table> "
+            f"(got {table!r})"
+        )
+    for part in parts:
+        _validate_ident(part)
+    return f"SUMMARIZE {'.'.join(parts)}"
+
+
 def columns_sql(dataset: str, table: str | None = None) -> str:
     """SQL listing a dataset's columns, optionally filtered to one table."""
     _validate_ident(dataset)

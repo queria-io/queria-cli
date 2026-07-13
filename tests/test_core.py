@@ -114,6 +114,26 @@ def test_schema_and_columns_sql(storage: str) -> None:
         assert [c[1] for c in cols] == ["label", "n"]
 
 
+def test_summarize_sql_defaults_schema_to_main() -> None:
+    assert core.summarize_sql("demo.numbers") == "SUMMARIZE demo.main.numbers"
+    assert core.summarize_sql("demo.main.numbers") == "SUMMARIZE demo.main.numbers"
+
+
+def test_summarize_sql_rejects_bad_input() -> None:
+    with pytest.raises(ValueError):
+        core.summarize_sql("numbers")
+    with pytest.raises(ValueError):
+        core.summarize_sql("a.b.c.d")
+    with pytest.raises(ValueError):
+        core.summarize_sql("demo.main.numbers; --")
+
+
+def test_summarize_auto_attaches(storage: str) -> None:
+    with queria.connect(storage) as conn:
+        rows = conn.sql(core.summarize_sql("demo.numbers")).fetchall()
+    assert {r[0] for r in rows} == {"n", "label"}
+
+
 def test_columns_sql_rejects_bad_table() -> None:
     with pytest.raises(ValueError):
         core.columns_sql("demo", "numbers; --")

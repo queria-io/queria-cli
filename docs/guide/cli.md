@@ -13,6 +13,7 @@ title: CLI ガイド
 | `queria info <dataset>` | データセットのメタデータ（ライセンス・出典など） |
 | `queria schema <dataset>` | データセットのテーブル一覧 |
 | `queria columns <dataset> [table]` | カラム一覧（table 指定で絞り込み） |
+| `queria summarize <table>` | テーブルのカラム統計（全件スキャン） |
 | `queria sql "<query>"` | read-only SQL の実行 |
 | `queria mcp` | stdio MCP サーバーの起動 |
 

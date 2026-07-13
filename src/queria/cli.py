@@ -142,6 +142,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_columns.add_argument("table", nargs="?", help="filter to one table")
     _add_output_args(p_columns)
 
+    p_summarize = sub.add_parser(
+        "summarize",
+        help="show per-column statistics for a table (scans the whole table)",
+    )
+    p_summarize.add_argument(
+        "table", help="<dataset>.<schema>.<table> (schema defaults to main)"
+    )
+    _add_output_args(p_summarize)
+
     p_sql = sub.add_parser("sql", help="run a read-only SQL query")
     p_sql.add_argument("query")
     p_sql.add_argument(
@@ -199,6 +208,8 @@ def main(argv: Sequence[str] | None = None) -> None:
                 args.format,
                 args.out,
             )
+        elif args.command == "summarize":
+            _emit(conn, core.summarize_sql(args.table), args.format, args.out)
         elif args.command == "sql":
             if not core.is_read_only(args.query):
                 sys.exit(

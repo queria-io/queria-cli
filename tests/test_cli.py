@@ -91,6 +91,13 @@ def test_sql_auto_attach_csv(storage: str, capsys: pytest.CaptureFixture) -> Non
     assert lines[1] == "1,one"
 
 
+def test_summarize(storage: str, capsys: pytest.CaptureFixture) -> None:
+    run_cli("--storage-url", storage, "summarize", "demo.numbers", "--format", "json")
+    records = json.loads(capsys.readouterr().out)
+    by_column = {r["column_name"]: r for r in records}
+    assert by_column["n"]["count"] == 3
+
+
 def test_sql_rejects_writes(storage: str) -> None:
     with pytest.raises(SystemExit, match="read-only"):
         run_cli("--storage-url", storage, "sql", "DROP TABLE demo.main.numbers")

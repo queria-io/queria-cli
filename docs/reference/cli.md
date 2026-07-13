@@ -67,6 +67,16 @@ queria schema <dataset> [--format FMT] [--out PATH]
 queria columns <dataset> [table] [--format FMT] [--out PATH]
 ```
 
+## queria summarize
+
+テーブルのカラム統計（件数・min/max・NULL 率・近似ユニーク数など、DuckDB の `SUMMARIZE`）を表示します。テーブル全体をスキャンするため、大きなテーブルでは時間と通信量がかかります。
+
+```bash
+queria summarize <dataset>.<schema>.<table> [--format FMT] [--out PATH]
+```
+
+スキーマを省略した `<dataset>.<table>` は `main` スキーマとして解釈されます。
+
 ## queria sql
 
 read-only SQL を実行します。`<dataset>.<schema>.<table>` で参照されたデータセットは自動 ATTACH されます。
