@@ -10,7 +10,7 @@ import sys
 from collections.abc import Sequence
 from typing import Any
 
-from queria import core
+from queria import auth, core
 
 FORMATS = ("table", "csv", "json", "jsonl", "markdown")
 
@@ -105,6 +105,10 @@ def build_parser() -> argparse.ArgumentParser:
         default=core.DEFAULT_STORAGE,
         help=f"catalog base URL (default: {core.DEFAULT_STORAGE})",
     )
+    parser.add_argument(
+        "--token",
+        help="API token (overrides QUERIA_TOKEN and the config file)",
+    )
     sub = parser.add_subparsers(dest="command", required=True)
 
     p_list = sub.add_parser("list", help="list available datasets")
@@ -159,25 +163,65 @@ def build_parser() -> argparse.ArgumentParser:
     )
     _add_output_args(p_sql)
 
+    p_auth = sub.add_parser(
+        "auth", help="manage the API token (raises the rate limit)"
+    )
+    auth_sub = p_auth.add_subparsers(dest="auth_command", required=True)
+    p_set = auth_sub.add_parser("set-token", help="save a token to the config file")
+    p_set.add_argument("value", metavar="token", help="API token to save")
+    auth_sub.add_parser(
+        "status", help="show whether a token is configured and where it comes from"
+    )
+    auth_sub.add_parser("clear", help="remove the token from the config file")
+
     sub.add_parser("mcp", help="run the stdio MCP server")
 
     return parser
 
 
+def _run_auth(args: argparse.Namespace) -> None:
+    if args.auth_command == "set-token":
+        try:
+            path = auth.set_token(args.value)
+        except ValueError as exc:
+            sys.exit(str(exc))
+        print(f"Token saved to {path}")
+    elif args.auth_command == "status":
+        token, source = auth.resolve_token(args.token)
+        if token is None:
+            print(
+                "No token configured. Set one with `queria auth set-token "
+                f"<token>` or the {auth.ENV_VAR} environment variable."
+            )
+        else:
+            print(f"Token: {token[:6]}... (source: {source})")
+    elif args.auth_command == "clear":
+        if auth.clear_token():
+            print(f"Token removed from {auth.config_path()}")
+        else:
+            print(f"No token in {auth.config_path()}")
+
+
 def main(argv: Sequence[str] | None = None) -> None:
     args = build_parser().parse_args(argv)
+
+    if args.command == "auth":
+        _run_auth(args)
+        return
+
+    token, _ = auth.resolve_token(args.token)
 
     if args.command == "mcp":
         from queria import mcp
 
-        mcp.serve(args.storage)
+        mcp.serve(args.storage, token=token)
         return
 
     try:
         conn = core.connect(
-            args.storage, user_agent=f"queria-cli/{core.version()}"
+            args.storage, user_agent=f"queria-cli/{core.version()}", token=token
         )
-    except RuntimeError as exc:
+    except (RuntimeError, ValueError) as exc:
         sys.exit(str(exc))
 
     try:
@@ -221,7 +265,7 @@ def main(argv: Sequence[str] | None = None) -> None:
                     if ds.strip():
                         conn.attach(ds.strip())
             _emit(conn, args.query, args.format, args.out)
-    except ValueError as exc:
+    except (ValueError, core.RateLimitError) as exc:
         sys.exit(str(exc))
     finally:
         conn.close()

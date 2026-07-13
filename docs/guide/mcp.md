@@ -39,6 +39,10 @@ claude mcp add queria -- uvx --from 'queria[mcp]' queria mcp
 
 詳細な引数と挙動は [MCP ツールリファレンス](../reference/mcp-tools.md)を参照してください。
 
+## API トークン
+
+MCP サーバーも CLI と同じトークン解決（環境変数 `QUERIA_TOKEN` → 設定ファイル）を使います。`queria auth set-token <token>` で保存しておくか、MCP クライアントの設定で環境変数を渡してください（[CLI ガイド](cli.md#api)参照）。
+
 ## 結果の上限について
 
 `query` の結果は行数（デフォルト 100、最大 1000）とペイロードサイズ（約 1MB）で打ち切られます。これはエージェントのコンテキストを守るための仕様です。打ち切られた場合は `truncated: true` とヒントが返るので、集計や LIMIT で絞るか、バルク抽出には CLI の `--out` を使ってください。
