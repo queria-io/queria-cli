@@ -9,6 +9,7 @@ title: CLI リファレンス
 | オプション | 説明 |
 |---|---|
 | `--storage-url URL` | カタログのベース URL（デフォルト: `https://data.queria.io`） |
+| `--token TOKEN` | API トークン（`QUERIA_TOKEN` と設定ファイルより優先） |
 | `--version` | バージョンを表示 |
 
 ## 出力オプション（list / search / schema / columns / sql 共通）
@@ -90,6 +91,18 @@ queria sql "<query>" [--datasets DS1,DS2] [--format FMT] [--out PATH]
 | `--datasets` | 事前に ATTACH するデータセット（通常は自動検出されるため不要） |
 
 SELECT / WITH / DESCRIBE / SHOW / PRAGMA / EXPLAIN / SUMMARIZE で始まる文のみ受け付けます。
+
+## queria auth
+
+API トークンを管理します。トークンは `--token` → 環境変数 `QUERIA_TOKEN` → 設定ファイル `~/.config/queria/config.toml`（`XDG_CONFIG_HOME` を尊重）の順で解決されます。
+
+```bash
+queria auth set-token <token>   # 設定ファイルに保存（パーミッション 600）
+queria auth status              # トークンの有無と取得元（flag / env / config）を表示
+queria auth clear               # 設定ファイルから削除
+```
+
+詳細は [CLI ガイド](../guide/cli.md#api)を参照してください。
 
 ## queria mcp
 

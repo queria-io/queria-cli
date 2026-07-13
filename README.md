@@ -28,6 +28,17 @@ queria sql "SELECT * FROM zipcode.main.zipcodes" --out zipcodes.parquet
 
 テーブルは `<dataset>.<schema>.<table>` で参照します。参照したデータセットは自動的に ATTACH されます。
 
+## API トークン
+
+トークンなしでも使えますが、レートリミットがあります。[https://queria.io/profile/api-keys](https://queria.io/profile/api-keys) で発行したトークンを登録すると上限が上がります:
+
+```bash
+queria auth set-token <token>   # ~/.config/queria/config.toml に保存
+queria auth status              # 確認
+```
+
+`--token` オプションや環境変数 `QUERIA_TOKEN` でも指定できます（この順で優先）。
+
 ## Python API
 
 ```python

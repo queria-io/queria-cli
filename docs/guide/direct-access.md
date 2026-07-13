@@ -35,6 +35,20 @@ ATTACH 'ducklake:https://data.queria.io/catalog/ducklake.duckdb' AS catalog (
 SELECT datasource, title FROM catalog.main.mart_datasets;
 ```
 
+## API トークンを使う（レートリミット緩和）
+
+data.queria.io はトークンなしでも読めますが、レートリミットがあります。[https://queria.io/profile/api-keys](https://queria.io/profile/api-keys) で発行したトークンを DuckDB の HTTP secret として登録すると、ATTACH 経由の全リクエスト（カタログファイル・parquet）に Authorization ヘッダが付き、上限が上がります:
+
+```sql
+CREATE SECRET queria_auth (
+    TYPE http,
+    BEARER_TOKEN 'YOUR_TOKEN',
+    SCOPE 'https://data.queria.io'
+);
+```
+
+ATTACH の前に実行してください。queria CLI / Python API では `queria auth set-token <token>` で保存しておけば自動的に同じ secret が設定されます（[CLI ガイド](cli.md)参照）。
+
 ## 注意点
 
 - DuckDB CLI（対話シェル）の同梱 ducklake 拡張はバージョンによって古い場合があります。`uvx duckdb` などで 1.5.4 以上を使ってください。

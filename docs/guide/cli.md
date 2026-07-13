@@ -15,6 +15,7 @@ title: CLI ガイド
 | `queria columns <dataset> [table]` | カラム一覧（table 指定で絞り込み） |
 | `queria summarize <table>` | テーブルのカラム統計（全件スキャン） |
 | `queria sql "<query>"` | read-only SQL の実行 |
+| `queria auth set-token / status / clear` | API トークンの管理 |
 | `queria mcp` | stdio MCP サーバーの起動 |
 
 ## 出力形式
@@ -46,6 +47,24 @@ queria sql "SELECT * FROM e_stat.main.mart_population_prefecture" --out pop.parq
 ```bash
 queria sql "SELECT * FROM information_schema.tables WHERE table_catalog = 'jma'" --datasets jma
 ```
+
+## API トークン（レートリミット緩和）
+
+data.queria.io はトークンなしでも使えますが、レートリミットがあります。上限に達すると「Rate limit reached」というエラーになります。[https://queria.io/profile/api-keys](https://queria.io/profile/api-keys) でトークンを発行して登録すると上限が上がります:
+
+```bash
+queria auth set-token <token>   # ~/.config/queria/config.toml に保存（パーミッション 600）
+queria auth status              # トークンの有無と取得元を確認
+queria auth clear               # 保存したトークンを削除
+```
+
+トークンは次の優先順で解決されます:
+
+1. `--token` オプション
+2. 環境変数 `QUERIA_TOKEN`
+3. 設定ファイル `~/.config/queria/config.toml`（`XDG_CONFIG_HOME` を尊重）の `token` キー
+
+登録したトークンは data.queria.io へのリクエストに Authorization ヘッダとして自動的に付与されます。
 
 ## read-only ガードについて
 
