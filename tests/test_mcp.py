@@ -92,6 +92,22 @@ def test_query_tool_rejects_writes(storage: str) -> None:
         anyio.run(server.call_tool, "query", {"sql": "DROP TABLE x"})
 
 
+def test_build_server_resolves_env_token(
+    storage: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("QUERIA_TOKEN", "tok_env123")
+    server = mcp.build_server(storage)
+    import anyio
+
+    result = anyio.run(
+        server.call_tool,
+        "query",
+        {"sql": "SELECT name FROM duckdb_secrets() WHERE name = 'queria_auth'"},
+    )
+    payload = json.loads(result[0].text)
+    assert payload["rows"] == [["queria_auth"]]
+
+
 def test_query_tool_returns_rows(storage: str) -> None:
     server = mcp.build_server(storage)
     import anyio

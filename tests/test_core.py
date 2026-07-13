@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import duckdb
 import pytest
 
 import queria
@@ -41,6 +42,41 @@ def test_writes_rejected_by_engine(storage: str) -> None:
     with queria.connect(storage) as conn:
         with pytest.raises(Exception, match="(?i)read.only"):
             conn.sql("DELETE FROM demo.main.numbers")
+
+
+def test_connect_with_token_creates_secret(storage: str) -> None:
+    with queria.connect(storage, token="tok_abc-123") as conn:
+        rows = conn.sql(
+            "SELECT name, scope FROM duckdb_secrets() WHERE name = 'queria_auth'"
+        ).fetchall()
+    assert len(rows) == 1
+    assert storage in rows[0][1]
+
+
+def test_connect_without_token_creates_no_secret(storage: str) -> None:
+    with queria.connect(storage) as conn:
+        rows = conn.sql(
+            "SELECT name FROM duckdb_secrets() WHERE name = 'queria_auth'"
+        ).fetchall()
+    assert rows == []
+
+
+def test_connect_rejects_invalid_token(storage: str) -> None:
+    with pytest.raises(ValueError, match="invalid token"):
+        queria.connect(storage, token="tok', SCOPE ''); DROP SECRET x; --")
+
+
+def test_rate_limit_detected_from_http_429() -> None:
+    exc = duckdb.IOException(
+        "HTTP GET error on 'https://data.queria.io/x' (HTTP 429)"
+    )
+    with pytest.raises(core.RateLimitError, match="queria auth set-token"):
+        core._raise_if_rate_limited(exc)
+
+
+def test_other_errors_are_not_rate_limits() -> None:
+    core._raise_if_rate_limited(duckdb.IOException("HTTP 404"))  # no raise
+    core._raise_if_rate_limited(duckdb.BinderException("429"))  # not an IO error
 
 
 def test_search_escapes_quotes(storage: str) -> None:

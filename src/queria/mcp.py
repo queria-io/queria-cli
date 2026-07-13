@@ -14,7 +14,7 @@ import json
 import sys
 from typing import Any
 
-from queria import core
+from queria import auth, core
 
 DEFAULT_MAX_ROWS = 100
 MAX_ROWS_LIMIT = 1000
@@ -65,8 +65,14 @@ def _relation_payload(
     return payload
 
 
-def build_server(storage: str = core.DEFAULT_STORAGE) -> Any:
-    """Build the FastMCP server with all Queria tools registered."""
+def build_server(
+    storage: str = core.DEFAULT_STORAGE, token: str | None = None
+) -> Any:
+    """Build the FastMCP server with all Queria tools registered.
+
+    ``token`` defaults to the usual resolution (QUERIA_TOKEN, then the
+    config file).
+    """
     try:
         from mcp.server.fastmcp import FastMCP
     except ImportError:
@@ -86,7 +92,11 @@ def build_server(storage: str = core.DEFAULT_STORAGE) -> Any:
             "Reference tables as <dataset>.<schema>.<table>."
         ),
     )
-    conn = core.connect(storage, user_agent=f"queria-mcp/{core.version()}")
+    if token is None:
+        token, _ = auth.resolve_token()
+    conn = core.connect(
+        storage, user_agent=f"queria-mcp/{core.version()}", token=token
+    )
 
     @server.tool()
     def list_datasets() -> dict:
@@ -143,6 +153,6 @@ def build_server(storage: str = core.DEFAULT_STORAGE) -> Any:
     return server
 
 
-def serve(storage: str = core.DEFAULT_STORAGE) -> None:
+def serve(storage: str = core.DEFAULT_STORAGE, token: str | None = None) -> None:
     """Run the stdio MCP server (blocks until the client disconnects)."""
-    build_server(storage).run()
+    build_server(storage, token=token).run()

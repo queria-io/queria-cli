@@ -11,6 +11,13 @@ import duckdb
 import pytest
 
 
+@pytest.fixture(autouse=True)
+def isolate_auth(tmp_path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep tests independent of the developer's real token configuration."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "xdg-config"))
+    monkeypatch.delenv("QUERIA_TOKEN", raising=False)
+
+
 def _attach_writable(con: duckdb.DuckDBPyConnection, root: str, alias: str) -> None:
     con.execute(
         f"ATTACH 'ducklake:{root}/{alias}/ducklake.duckdb' AS {alias} "

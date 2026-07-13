@@ -126,6 +126,56 @@ def test_out_rejects_unknown_extension(storage: str, tmp_path: Path) -> None:
         )
 
 
+def test_auth_set_status_clear_roundtrip(capsys: pytest.CaptureFixture) -> None:
+    from queria import auth
+
+    run_cli("auth", "status")
+    assert "No token configured" in capsys.readouterr().out
+
+    run_cli("auth", "set-token", "tok_abc12345")
+    assert str(auth.config_path()) in capsys.readouterr().out
+    assert (auth.config_path().stat().st_mode & 0o777) == 0o600
+
+    run_cli("auth", "status")
+    out = capsys.readouterr().out
+    assert "tok_ab" in out and "tok_abc12345" not in out
+    assert "config" in out
+
+    run_cli("auth", "clear")
+    capsys.readouterr()
+    run_cli("auth", "status")
+    assert "No token configured" in capsys.readouterr().out
+
+
+def test_auth_status_prefers_flag_over_env(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
+) -> None:
+    monkeypatch.setenv("QUERIA_TOKEN", "envtok123")
+    run_cli("auth", "status")
+    assert "(source: env)" in capsys.readouterr().out
+    run_cli("--token", "flagtok123", "auth", "status")
+    out = capsys.readouterr().out
+    assert "flagto" in out and "(source: flag)" in out
+
+
+def test_auth_set_token_rejects_invalid(capsys: pytest.CaptureFixture) -> None:
+    with pytest.raises(SystemExit, match="invalid token"):
+        run_cli("auth", "set-token", "bad token'")
+
+
+def test_token_flag_creates_http_secret(
+    storage: str, capsys: pytest.CaptureFixture
+) -> None:
+    run_cli(
+        "--storage-url", storage, "--token", "tok_abc123",
+        "sql",
+        "SELECT count(*) AS c FROM duckdb_secrets() WHERE name = 'queria_auth'",
+        "--format", "json",
+    )
+    records = json.loads(capsys.readouterr().out)
+    assert records[0]["c"] == 1
+
+
 def test_version(capsys: pytest.CaptureFixture) -> None:
     with pytest.raises(SystemExit):
         run_cli("--version")

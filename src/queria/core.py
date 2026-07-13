@@ -14,6 +14,8 @@ import urllib.request
 
 import duckdb
 
+from queria import auth
+
 DEFAULT_STORAGE = "https://data.queria.io"
 CATALOG_ALIAS = "catalog"
 MAX_AUTO_ATTACH = 8
@@ -34,6 +36,26 @@ _READONLY_RE = re.compile(
     r"^\s*(with|select|describe|show|pragma|explain|summarize|values|table|from)\b",
     re.IGNORECASE,
 )
+
+
+class RateLimitError(RuntimeError):
+    """Raised when the storage responds with HTTP 429 (rate limited)."""
+
+
+RATE_LIMIT_MESSAGE = (
+    "Rate limit reached. Create an API token at https://queria.io/profile/api-keys "
+    "and run `queria auth set-token <token>` to raise the limit."
+)
+
+_HTTP_429_RE = re.compile(r"\b429\b")
+
+
+def _raise_if_rate_limited(exc: duckdb.Error) -> None:
+    """Convert an HTTP 429 from the storage into a RateLimitError."""
+    if getattr(exc, "status_code", None) == 429 or (
+        isinstance(exc, duckdb.IOException) and _HTTP_429_RE.search(str(exc))
+    ):
+        raise RateLimitError(RATE_LIMIT_MESSAGE) from exc
 
 
 def version() -> str:
@@ -114,7 +136,11 @@ class Connection:
     """
 
     def __init__(
-        self, storage: str = DEFAULT_STORAGE, *, user_agent: str | None = None
+        self,
+        storage: str = DEFAULT_STORAGE,
+        *,
+        user_agent: str | None = None,
+        token: str | None = None,
     ) -> None:
         _check_duckdb_version()
         self.storage = storage.rstrip("/")
@@ -125,6 +151,15 @@ class Connection:
         # spatial: several datasets (nlftp, address_br, e_stat boundaries)
         # expose GEOMETRY columns and ST_* functions.
         self._con.execute("INSTALL spatial; LOAD spatial;")
+        if token is not None:
+            # Send the token as an Authorization header on every request to
+            # the storage (catalog files and parquet alike). CREATE SECRET is
+            # DDL and cannot be parameterized, hence the strict validation.
+            auth.validate_token(token)
+            self._con.execute(
+                "CREATE SECRET queria_auth (TYPE http, "
+                f"BEARER_TOKEN '{token}', SCOPE '{_quote(self.storage)}')"
+            )
         self._attached: set[str] = set()
         try:
             self.attach(CATALOG_ALIAS)
@@ -141,30 +176,42 @@ class Connection:
         _validate_ident(dataset)
         url = f"{self.storage}/{dataset}/ducklake.duckdb"
         data_path = f"{self.storage}/{dataset}/ducklake.duckdb.files/"
-        self._con.execute(
-            f"ATTACH 'ducklake:{url}' AS {dataset} "
-            f"(READ_ONLY, DATA_PATH '{data_path}', OVERRIDE_DATA_PATH true)"
-        )
+        try:
+            self._con.execute(
+                f"ATTACH 'ducklake:{url}' AS {dataset} "
+                f"(READ_ONLY, DATA_PATH '{data_path}', OVERRIDE_DATA_PATH true)"
+            )
+        except duckdb.Error as exc:
+            _raise_if_rate_limited(exc)
+            raise
         self._attached.add(dataset)
 
     def sql(self, query: str) -> duckdb.DuckDBPyRelation:
         """Run a query, auto-attaching datasets it references."""
-        for _ in range(MAX_AUTO_ATTACH):
-            try:
-                return self._con.sql(query)
-            except duckdb.Error as exc:
-                self._attach_missing(exc)
-        return self._con.sql(query)
+        try:
+            for _ in range(MAX_AUTO_ATTACH):
+                try:
+                    return self._con.sql(query)
+                except duckdb.Error as exc:
+                    self._attach_missing(exc)
+            return self._con.sql(query)
+        except duckdb.Error as exc:
+            _raise_if_rate_limited(exc)
+            raise
 
     def execute(self, query: str) -> None:
         """Execute a statement (e.g. COPY), auto-attaching referenced datasets."""
-        for _ in range(MAX_AUTO_ATTACH):
-            try:
-                self._con.execute(query)
-                return
-            except duckdb.Error as exc:
-                self._attach_missing(exc)
-        self._con.execute(query)
+        try:
+            for _ in range(MAX_AUTO_ATTACH):
+                try:
+                    self._con.execute(query)
+                    return
+                except duckdb.Error as exc:
+                    self._attach_missing(exc)
+            self._con.execute(query)
+        except duckdb.Error as exc:
+            _raise_if_rate_limited(exc)
+            raise
 
     def _attach_missing(self, exc: duckdb.Error) -> None:
         """Attach the dataset named in a missing-catalog error, or re-raise."""
@@ -185,7 +232,10 @@ class Connection:
 
 
 def connect(
-    storage: str = DEFAULT_STORAGE, *, user_agent: str | None = None
+    storage: str = DEFAULT_STORAGE,
+    *,
+    user_agent: str | None = None,
+    token: str | None = None,
 ) -> Connection:
     """Open a read-only connection to Queria's public catalogs.
 
@@ -193,8 +243,10 @@ def connect(
         storage: Base URL (or local path) of the catalog storage.
         user_agent: HTTP user agent reported to the storage. Defaults to
             ``queria-python/<version>``.
+        token: API token sent as a Bearer Authorization header to the
+            storage. Raises the rate limit on data.queria.io.
     """
-    return Connection(storage, user_agent=user_agent)
+    return Connection(storage, user_agent=user_agent, token=token)
 
 
 # ---- catalog queries shared by the CLI and the MCP server -------------------
