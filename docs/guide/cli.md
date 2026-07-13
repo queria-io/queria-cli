@@ -10,6 +10,7 @@ title: CLI ガイド
 |---|---|
 | `queria list` | データセット一覧 |
 | `queria search <keyword>` | データセット・テーブル・カラムの横断キーワード検索 |
+| `queria info <dataset>` | データセットのメタデータ（ライセンス・出典など） |
 | `queria schema <dataset>` | データセットのテーブル一覧 |
 | `queria columns <dataset> [table]` | カラム一覧（table 指定で絞り込み） |
 | `queria sql "<query>"` | read-only SQL の実行 |

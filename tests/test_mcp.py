@@ -58,10 +58,21 @@ def test_build_server_registers_tools(storage: str) -> None:
     assert names == {
         "list_datasets",
         "search",
+        "get_dataset_info",
         "get_schema",
         "get_columns",
         "query",
     }
+
+
+def test_get_dataset_info_tool(storage: str) -> None:
+    server = mcp.build_server(storage)
+    import anyio
+
+    result = anyio.run(server.call_tool, "get_dataset_info", {"dataset": "demo"})
+    payload = json.loads(result[0].text)
+    fields = dict(payload["rows"])
+    assert fields["license"] == "CC-BY-4.0"
 
 
 def test_search_tool_spans_entry_types(storage: str) -> None:

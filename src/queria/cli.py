@@ -124,6 +124,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     _add_output_args(p_search)
 
+    p_info = sub.add_parser(
+        "info", help="show a dataset's metadata (license, source, schemas)"
+    )
+    p_info.add_argument("dataset")
+    p_info.add_argument(
+        "--readme", action="store_true", help="include the dataset README"
+    )
+    _add_output_args(p_info)
+
     p_schema = sub.add_parser("schema", help="list a dataset's tables")
     p_schema.add_argument("dataset")
     _add_output_args(p_schema)
@@ -171,6 +180,13 @@ def main(argv: Sequence[str] | None = None) -> None:
                 core.search_sql(
                     args.keyword, entry_type=args.type, limit=args.limit
                 ),
+                args.format,
+                args.out,
+            )
+        elif args.command == "info":
+            _emit(
+                conn,
+                core.info_sql(args.dataset, include_readme=args.readme),
                 args.format,
                 args.out,
             )

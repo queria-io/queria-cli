@@ -108,6 +108,13 @@ def build_server(storage: str = core.DEFAULT_STORAGE) -> Any:
         )
 
     @server.tool()
+    def get_dataset_info(dataset: str, include_readme: bool = False) -> dict:
+        """Show a dataset's metadata (license, source, schemas) as field/value rows."""
+        return _relation_payload(
+            conn.sql(core.info_sql(dataset, include_readme=include_readme))
+        )
+
+    @server.tool()
     def get_schema(dataset: str) -> dict:
         """List a dataset's tables and views with descriptions."""
         return _relation_payload(conn.sql(core.schema_sql(dataset)))

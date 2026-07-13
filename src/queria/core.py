@@ -267,6 +267,43 @@ def search_sql(
     """
 
 
+# Metadata fields exposed by info_sql, in display order. ``readme`` is opt-in
+# because it can be long.
+_INFO_FIELDS = (
+    "datasource",
+    "title",
+    "description",
+    "license",
+    "license_url",
+    "source_url",
+    "repository_url",
+    "schedule",
+    "tags_json",
+    "schemas_json",
+    "dbt_generated_at",
+)
+
+
+def info_sql(dataset: str, *, include_readme: bool = False) -> str:
+    """SQL returning one dataset's metadata as (field, value) rows.
+
+    Values are cast to VARCHAR so UNPIVOT can stack heterogeneous columns;
+    fields whose value is NULL are omitted from the result.
+    """
+    _validate_ident(dataset)
+    fields = _INFO_FIELDS + (("readme",) if include_readme else ())
+    casts = ", ".join(f"CAST({f} AS VARCHAR) AS {f}" for f in fields)
+    return f"""
+        UNPIVOT (
+            SELECT {casts}
+            FROM {CATALOG_ALIAS}.main.mart_datasets
+            WHERE datasource = '{dataset}'
+        )
+        ON {", ".join(fields)}
+        INTO NAME field VALUE value
+    """
+
+
 def schema_sql(dataset: str) -> str:
     """SQL listing a dataset's tables and views."""
     _validate_ident(dataset)

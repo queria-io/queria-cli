@@ -39,6 +39,18 @@ queria search <keyword> [--type {dataset,table,column}] [--limit N] [--format FM
 | `--type` | エントリ種別で絞り込み（デフォルト: すべて） |
 | `--limit` | 最大件数（デフォルト: 50） |
 
+## queria info
+
+データセットのメタデータ（ライセンス・出典 URL・リポジトリ・スキーマ一覧・更新日時など）を `field` / `value` の 2 列で表示します。値が NULL のフィールドは省略されます。
+
+```bash
+queria info <dataset> [--readme] [--format FMT] [--out PATH]
+```
+
+| オプション | 説明 |
+|---|---|
+| `--readme` | データセットの README 本文も含める |
+
 ## queria schema
 
 データセットのテーブル・ビュー一覧を表示します。

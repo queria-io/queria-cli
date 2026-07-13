@@ -78,6 +78,34 @@ def test_search_rejects_bad_arguments() -> None:
         core.search_sql("x", limit=0)
 
 
+def test_info_sql_returns_field_value_rows(storage: str) -> None:
+    with queria.connect(storage) as conn:
+        rows = dict(conn.sql(core.info_sql("demo")).fetchall())
+    assert rows["license"] == "CC-BY-4.0"
+    assert rows["source_url"] == "https://example.com/source"
+    assert "readme" not in rows
+
+
+def test_info_sql_omits_null_fields(storage: str) -> None:
+    with queria.connect(storage) as conn:
+        rows = dict(conn.sql(core.info_sql("zipcode")).fetchall())
+    assert rows["license"] == "CC-BY-4.0"
+    assert "source_url" not in rows
+
+
+def test_info_sql_include_readme(storage: str) -> None:
+    with queria.connect(storage) as conn:
+        rows = dict(
+            conn.sql(core.info_sql("demo", include_readme=True)).fetchall()
+        )
+    assert rows["readme"] == "# Demo readme"
+
+
+def test_info_sql_rejects_bad_identifier() -> None:
+    with pytest.raises(ValueError):
+        core.info_sql("demo; --")
+
+
 def test_schema_and_columns_sql(storage: str) -> None:
     with queria.connect(storage) as conn:
         tables = conn.sql(core.schema_sql("demo")).fetchall()

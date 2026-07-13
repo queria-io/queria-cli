@@ -31,9 +31,21 @@ def storage(tmp_path_factory: pytest.TempPathFactory) -> str:
     con.execute("""
         CREATE TABLE catalog.main.mart_datasets AS
         SELECT * FROM (VALUES
-            ('demo', 'Demo dataset', 'Numbers for testing'),
-            ('zipcode', 'Zipcode', 'Japanese postal codes')
-        ) t(datasource, title, description)
+            ('demo', 'Demo dataset', 'Numbers for testing', 'cover.png',
+             'https://example.com/demo/ducklake.duckdb',
+             'https://github.com/example/demo', 'daily', '["test"]',
+             'CC-BY-4.0', 'https://example.com/license',
+             'https://example.com/source', '["main"]', '1.8.0',
+             TIMESTAMP '2026-01-01 00:00:00', 'inv-1', '# Demo readme'),
+            ('zipcode', 'Zipcode', 'Japanese postal codes', NULL,
+             NULL, NULL, NULL, NULL,
+             'CC-BY-4.0', NULL,
+             NULL, '["main"]', NULL,
+             NULL, NULL, NULL)
+        ) t(datasource, title, description, cover, ducklake_url,
+            repository_url, schedule, tags_json, license, license_url,
+            source_url, schemas_json, dbt_version, dbt_generated_at,
+            dbt_invocation_id, readme)
     """)
     con.execute("""
         CREATE TABLE catalog.main.mart_nodes AS
