@@ -29,7 +29,8 @@ jobs:
       - if: steps.release.outputs.released == 'true'
         uses: pypa/gh-action-pypi-publish@release/v1
 
+      # docs.queria.io (queria-io/docs) を再ビルドして /changelog に新リリースを反映する
       - if: steps.release.outputs.released == 'true'
-        run: gh workflow run docs.yml --ref main
+        run: curl -fsS -X POST "$DOCS_DEPLOY_HOOK"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCS_DEPLOY_HOOK: ${{ secrets.DOCS_DEPLOY_HOOK }}
