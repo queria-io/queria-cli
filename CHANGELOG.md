@@ -1,6 +1,18 @@
 # CHANGELOG
 
 
+## v0.2.1 (2026-07-17)
+
+### Bug Fixes
+
+- **cli**: Align read-only error message with accepted statements
+  ([`c5f4e87`](https://github.com/queria-io/queria-cli/commit/c5f4e87bbded30d7d27570b3f0ddce47466642f0))
+
+The read-only guard accepts VALUES, TABLE, and FROM statements in addition to the seven listed in
+  the rejection message. Centralize the message as core.READONLY_ERROR next to _READONLY_RE and list
+  all ten accepted statement types.
+
+
 ## v0.2.0 (2026-07-17)
 
 ### Chores
