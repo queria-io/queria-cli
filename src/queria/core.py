@@ -37,6 +37,12 @@ _READONLY_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Keep the statement list in sync with _READONLY_RE above.
+READONLY_ERROR = (
+    "Only read-only queries are allowed (SELECT/WITH/DESCRIBE/SHOW/"
+    "PRAGMA/EXPLAIN/SUMMARIZE/VALUES/TABLE/FROM)."
+)
+
 
 class RateLimitError(RuntimeError):
     """Raised when the storage responds with HTTP 429 (rate limited)."""

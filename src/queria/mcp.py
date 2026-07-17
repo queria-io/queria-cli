@@ -143,10 +143,7 @@ def build_server(
         use the queria CLI with --out for bulk extraction.
         """
         if not core.is_read_only(sql):
-            raise ValueError(
-                "Only read-only queries are allowed "
-                "(SELECT/WITH/DESCRIBE/SHOW/PRAGMA/EXPLAIN/SUMMARIZE)."
-            )
+            raise ValueError(core.READONLY_ERROR)
         capped = max(1, min(max_rows, MAX_ROWS_LIMIT))
         return _relation_payload(conn.sql(sql), max_rows=capped)
 
