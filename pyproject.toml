@@ -21,7 +21,7 @@ mcp = [
 Homepage = "https://docs.queria.io/"
 Documentation = "https://docs.queria.io/"
 Repository = "https://github.com/queria-io/queria-cli"
-Changelog = "https://docs.queria.io/resources/changelog/"
+Changelog = "https://docs.queria.io/changelog"
 
 [project.scripts]
 queria = "queria.cli:main"
@@ -48,6 +48,4 @@ markers = [
 dev = [
     "pytest>=8.0",
     "mcp>=1.2",
-    "zensical>=0.0.29",
-    "mkdocstrings[python]>=1.0.3",
 ]
