@@ -1,7 +1,14 @@
 name: Release
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
+
+# semantic-release がバンプコミットを push するため、リリースは直列化する
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
   release:
@@ -15,13 +22,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: astral-sh/setup-uv@v7
+
+      # main へ CI を経ず直 push されたコミットも公開前にテストを通す
+      - run: uv sync
+
+      - run: uv run pytest
+
       - uses: python-semantic-release/python-semantic-release@v9
         id: release
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - if: steps.release.outputs.released == 'true'
-        uses: astral-sh/setup-uv@v7
 
       - if: steps.release.outputs.released == 'true'
         run: uv build
