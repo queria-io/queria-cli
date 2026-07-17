@@ -256,10 +256,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             _emit(conn, core.summarize_sql(args.table), args.format, args.out)
         elif args.command == "sql":
             if not core.is_read_only(args.query):
-                sys.exit(
-                    "Only read-only queries are allowed "
-                    "(SELECT/WITH/DESCRIBE/SHOW/PRAGMA/EXPLAIN/SUMMARIZE)."
-                )
+                sys.exit(core.READONLY_ERROR)
             if args.datasets:
                 for ds in args.datasets.split(","):
                     if ds.strip():
