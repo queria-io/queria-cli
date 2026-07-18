@@ -1,6 +1,6 @@
 [project]
 name = "queria"
-version = "0.3.0"
+version = "0.3.1"
 description = "Query Japanese open data on Queria (data.queria.io) from the terminal, Python, and MCP"
 readme = "README.md"
 license = "MIT"

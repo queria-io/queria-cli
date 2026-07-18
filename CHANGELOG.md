@@ -1,6 +1,41 @@
 # CHANGELOG
 
 
+## v0.3.1 (2026-07-18)
+
+### Bug Fixes
+
+- **mcp**: Block filesystem, SSRF and dynamic-SQL access from the query tool
+  ([`65aeda7`](https://github.com/queria-io/queria-cli/commit/65aeda792d419b5db4a0b235bc19651a74f54c0e))
+
+The query tool gated SQL only with is_read_only(), an advisory check on the leading keyword. A
+  SELECT could still read local files via read_text() / read_csv() / glob() / ST_Read(), reach
+  internal endpoints (read_csv('http://169.254.169.254/...')), or smuggle any of these past
+  inspection with query('...'). An MCP client driven by untrusted data could be made to exfiltrate
+  secrets (e.g. ~/.ssh/id_rsa) through the tool result.
+
+Reject these functions in the query tool. core.unsafe_function() parses the SQL with DuckDB's own
+  parser (json_serialize_sql) and walks the AST, so a call is found regardless of nesting, with a
+  lexical scan as a fail-closed fallback for statements the parser refuses. The CLI keeps
+  unrestricted SQL: it is run by a trusted local user, not an untrusted agent.
+
+Also correct the tool docstring and server instructions, which described the tool as plain
+  "read-only" and implied it was safe.
+
+### Continuous Integration
+
+- **release**: Docs.queria.io デプロイフックのステップを削除
+  ([`9471d9b`](https://github.com/queria-io/queria-cli/commit/9471d9be0d957db735eb44d2986f1af3f87aa9ea))
+
+### Documentation
+
+- Describe query tool sandboxing in the README
+  ([`4a21782`](https://github.com/queria-io/queria-cli/commit/4a21782dc153b5b6af40e56cec33eca8956faae9))
+
+Note that the MCP query tool runs SELECT-only over the catalogs and blocks file/URL readers and
+  dynamic SQL, and point users at the CLI when they need unrestricted SQL.
+
+
 ## v0.3.0 (2026-07-18)
 
 ### Continuous Integration
