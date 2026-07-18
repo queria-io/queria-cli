@@ -1,6 +1,27 @@
 # CHANGELOG
 
 
+## v0.3.0 (2026-07-18)
+
+### Continuous Integration
+
+- Add Dependabot config for weekly dependency updates
+  ([`814a2ed`](https://github.com/queria-io/queria-cli/commit/814a2ed53d46bfa4b129850c9024a120b7ec98e6))
+
+### Documentation
+
+- Add CLAUDE.md with release and docs-update guidance
+  ([`438c113`](https://github.com/queria-io/queria-cli/commit/438c113e1a40257483e6aeca8c32be2bc0f004a1))
+
+### Features
+
+- Cli コマンドと MCP ツール呼び出しにテレメトリを配線
+  ([`f9f2cfe`](https://github.com/queria-io/queria-cli/commit/f9f2cfea5d4153ba4c3fe5c6c1a47b60a0d5b357))
+
+- 匿名・オプトアウト可能なテレメトリ基盤を追加
+  ([`164a1a4`](https://github.com/queria-io/queria-cli/commit/164a1a4d4eab7c76d4fede9f88e6920057e6cc50))
+
+
 ## v0.2.1 (2026-07-17)
 
 ### Bug Fixes
