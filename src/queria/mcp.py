@@ -108,11 +108,13 @@ def build_server(
     server = FastMCP(
         "queria",
         instructions=(
-            "Read-only access to Queria (data.queria.io), a catalog of "
-            "Japanese open data published as DuckLake. Start with "
-            "list_datasets or search, inspect tables with "
-            "get_schema / get_columns, then run DuckDB SQL with query. "
-            "Reference tables as <dataset>.<schema>.<table>."
+            "Query Queria (data.queria.io), a catalog of Japanese open data "
+            "published as DuckLake. Start with list_datasets or search, "
+            "inspect tables with get_schema / get_columns, then run DuckDB "
+            "SQL with query. Reference tables as <dataset>.<schema>.<table>. "
+            "query runs SELECT statements only and cannot write to the "
+            "catalog, read local files, or fetch arbitrary URLs; it is not a "
+            "general shell for the host."
         ),
     )
     if token is None:
@@ -165,14 +167,23 @@ def build_server(
     @server.tool()
     @_tracked
     def query(sql: str, max_rows: int = DEFAULT_MAX_ROWS) -> dict:
-        """Run a read-only DuckDB SQL query against Queria datasets.
+        """Run a SELECT query against Queria's published datasets.
 
         Reference tables as <dataset>.<schema>.<table>; datasets attach
         automatically. Results are capped at max_rows (up to 1000) and ~1MB;
         use the queria CLI with --out for bulk extraction.
+
+        Scope: SELECT statements over the Queria catalogs only. Writes are
+        rejected, and functions that read local files or arbitrary URLs
+        (read_text, read_csv, glob, ST_Read, ...) or run dynamic SQL (query)
+        are blocked, so the tool cannot read local files or reach other
+        network endpoints.
         """
         if not core.is_read_only(sql):
             raise ValueError(core.READONLY_ERROR)
+        unsafe = core.unsafe_function(sql)
+        if unsafe:
+            raise ValueError(core.UNSAFE_QUERY_ERROR.format(name=unsafe))
         capped = max(1, min(max_rows, MAX_ROWS_LIMIT))
         return _relation_payload(conn.sql(sql), max_rows=capped)
 

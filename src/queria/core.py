@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import re
+import threading
 import urllib.request
 
 import duckdb
@@ -42,6 +43,117 @@ READONLY_ERROR = (
     "Only read-only queries are allowed (SELECT/WITH/DESCRIBE/SHOW/"
     "PRAGMA/EXPLAIN/SUMMARIZE/VALUES/TABLE/FROM)."
 )
+
+# Functions that reach outside the attached catalogs. A "read-only" SELECT is
+# still dangerous if it can read the local filesystem
+# (read_text('/home/user/.ssh/id_rsa')), reach internal network endpoints
+# (read_csv('http://169.254.169.254/latest/meta-data/...')), or run SQL smuggled
+# in a string literal (query('SELECT read_text(...)'), which the AST cannot see
+# inside the constant). Queria's catalogs are reached through ducklake/httpfs and
+# never need any of these, so the MCP query tool rejects them. The ST_* / GDAL
+# readers are here too: the spatial extension is loaded for GEOMETRY support and
+# its readers hit the filesystem as well.
+_UNSAFE_FUNCTIONS = frozenset(
+    {
+        # local file / URL readers
+        "read_text",
+        "read_blob",
+        "read_csv",
+        "read_csv_auto",
+        "read_json",
+        "read_json_auto",
+        "read_json_objects",
+        "read_json_objects_auto",
+        "read_ndjson",
+        "read_ndjson_auto",
+        "read_ndjson_objects",
+        "read_parquet",
+        "parquet_scan",
+        "parquet_metadata",
+        "parquet_schema",
+        "parquet_file_metadata",
+        "parquet_full_metadata",
+        "parquet_kv_metadata",
+        "parquet_bloom_probe",
+        "sniff_csv",
+        "read_duckdb",
+        "ducklake_scan",
+        "glob",
+        # spatial (GDAL) readers
+        "st_read",
+        "st_readosm",
+        "st_readshp",
+        "st_read_meta",
+        "shapefile_meta",
+        # dynamic SQL: would smuggle any of the above past the AST scan
+        "query",
+        "query_table",
+        "json_execute_serialized_sql",
+    }
+)
+
+_UNSAFE_FUNC_RE = re.compile(
+    r"\b(" + "|".join(sorted(_UNSAFE_FUNCTIONS)) + r")\s*\(",
+    re.IGNORECASE,
+)
+
+UNSAFE_QUERY_ERROR = (
+    "This query calls {name}(), which can read local files, fetch arbitrary "
+    "URLs, or run dynamic SQL. The query tool only reads Queria's published "
+    "catalogs; filesystem, network and dynamic-SQL access is not allowed."
+)
+
+_parser_lock = threading.Lock()
+_parser: duckdb.DuckDBPyConnection | None = None
+
+
+def _referenced_functions(sql: str) -> set[str] | None:
+    """Return the function names referenced anywhere in ``sql``.
+
+    Uses DuckDB's own parser (``json_serialize_sql``) and walks the AST, so a
+    call is found regardless of nesting (CTE, subquery, function argument).
+    Returns ``None`` when the statement cannot be parsed/serialized (e.g. a
+    non-SELECT), leaving the caller to fall back to a lexical scan.
+    """
+    global _parser
+    try:
+        with _parser_lock:
+            if _parser is None:
+                _parser = duckdb.connect()
+            row = _parser.execute(
+                "SELECT json_serialize_sql(?)", [sql]
+            ).fetchone()
+        ast = json.loads(row[0])
+    except Exception:
+        return None
+    if not isinstance(ast, dict) or ast.get("error"):
+        return None
+    found: set[str] = set()
+    stack: list[object] = [ast]
+    while stack:
+        node = stack.pop()
+        if isinstance(node, dict):
+            name = node.get("function_name")
+            if isinstance(name, str):
+                found.add(name.lower())
+            stack.extend(node.values())
+        elif isinstance(node, list):
+            stack.extend(node)
+    return found
+
+
+def unsafe_function(sql: str) -> str | None:
+    """Return a filesystem/URL/dynamic-SQL function ``sql`` uses, or ``None``.
+
+    Prefers DuckDB's parser; if the statement cannot be serialized, falls back
+    to a lexical scan so the check never fails open.
+    """
+    names = _referenced_functions(sql)
+    if names is not None:
+        hits = names & _UNSAFE_FUNCTIONS
+        return sorted(hits)[0] if hits else None
+    m = _UNSAFE_FUNC_RE.search(sql)
+    return m.group(1).lower() if m else None
 
 
 class RateLimitError(RuntimeError):
