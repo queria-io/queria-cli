@@ -92,6 +92,51 @@ def test_query_tool_rejects_writes(storage: str) -> None:
         anyio.run(server.call_tool, "query", {"sql": "DROP TABLE x"})
 
 
+def test_query_tool_rejects_local_file_read(storage: str, tmp_path) -> None:
+    secret = tmp_path / "secret.txt"
+    secret.write_text("TOP-SECRET")
+    server = mcp.build_server(storage)
+    import anyio
+
+    # The audit's exfiltration payload: a SELECT that reads a local file. It
+    # must be blocked before execution, so the secret is never read.
+    with pytest.raises(Exception, match="(?i)read local files"):
+        anyio.run(
+            server.call_tool,
+            "query",
+            {"sql": f"SELECT content FROM read_text('{secret}')"},
+        )
+
+
+def test_query_tool_rejects_ssrf(storage: str) -> None:
+    server = mcp.build_server(storage)
+    import anyio
+
+    # The audit's SSRF payload: read_csv against a cloud metadata endpoint.
+    with pytest.raises(Exception, match="(?i)read local files"):
+        anyio.run(
+            server.call_tool,
+            "query",
+            {
+                "sql": "SELECT * FROM read_csv("
+                "'http://169.254.169.254/latest/meta-data/')"
+            },
+        )
+
+
+def test_query_tool_rejects_dynamic_sql_evasion(storage: str) -> None:
+    server = mcp.build_server(storage)
+    import anyio
+
+    # query() would run a reader hidden in a string literal the AST can't see.
+    with pytest.raises(Exception, match="(?i)dynamic SQL"):
+        anyio.run(
+            server.call_tool,
+            "query",
+            {"sql": "SELECT * FROM query('SELECT content FROM read_text(''/etc/hosts'')')"},
+        )
+
+
 def test_build_server_resolves_env_token(
     storage: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:

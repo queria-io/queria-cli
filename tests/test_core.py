@@ -190,3 +190,39 @@ def test_columns_sql_rejects_bad_table() -> None:
 )
 def test_is_read_only(sql: str, expected: bool) -> None:
     assert core.is_read_only(sql) is expected
+
+
+@pytest.mark.parametrize(
+    ("sql", "expected"),
+    [
+        ("SELECT content FROM read_text('/etc/passwd')", "read_text"),
+        ("SELECT * FROM read_csv('http://169.254.169.254/x')", "read_csv"),
+        ("SELECT * FROM glob('/**')", "glob"),
+        ("SELECT * FROM ST_Read('/x.shp')", "st_read"),
+        ("SELECT * FROM sniff_csv('/x.csv')", "sniff_csv"),
+        # nested inside a CTE / subquery / function argument
+        ("WITH t AS (SELECT * FROM read_blob('/x')) SELECT * FROM t", "read_blob"),
+        ("SELECT * FROM (SELECT content FROM read_text('/x')) u", "read_text"),
+        ("SELECT upper(read_text('/x'))", "read_text"),
+        # dynamic SQL would smuggle a reader past the AST scan inside a string
+        (
+            "SELECT * FROM query('SELECT content FROM read_text(''/x'')')",
+            "query",
+        ),
+        ("SELECT * FROM query_table('demo.main.numbers')", "query_table"),
+        # safe queries against the catalog
+        ("SELECT n FROM demo.main.numbers ORDER BY n", None),
+        ("SELECT count(*) FROM catalog.main.mart_datasets", None),
+        ("SUMMARIZE demo.main.numbers", None),
+        # a string literal that merely looks like a call must not trip it
+        ("SELECT 'read_text(' AS x", None),
+    ],
+)
+def test_unsafe_function(sql: str, expected: str | None) -> None:
+    assert core.unsafe_function(sql) == expected
+
+
+def test_unsafe_function_lexical_fallback() -> None:
+    # DESCRIBE of a table function cannot be serialized to JSON, so the check
+    # falls back to a lexical scan rather than failing open.
+    assert core.unsafe_function("DESCRIBE read_csv('/x')") == "read_csv"
