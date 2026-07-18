@@ -10,7 +10,7 @@ import sys
 from collections.abc import Sequence
 from typing import Any
 
-from queria import auth, core
+from queria import auth, core, telemetry
 
 FORMATS = ("table", "csv", "json", "jsonl", "markdown")
 
@@ -176,6 +176,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("mcp", help="run the stdio MCP server")
 
+    p_telemetry = sub.add_parser(
+        "telemetry", help="manage anonymous usage telemetry (opt-out)"
+    )
+    telemetry_sub = p_telemetry.add_subparsers(dest="telemetry_command", required=True)
+    telemetry_sub.add_parser("enable", help="re-enable telemetry")
+    telemetry_sub.add_parser("disable", help="opt out of telemetry")
+    telemetry_sub.add_parser("status", help="show whether telemetry is enabled")
+
     return parser
 
 
@@ -186,6 +194,9 @@ def _run_auth(args: argparse.Namespace) -> None:
         except ValueError as exc:
             sys.exit(str(exc))
         print(f"Token saved to {path}")
+        # Resolve the token's owner so telemetry can join CLI usage with
+        # web activity. Failure is fine; telemetry stays anonymous.
+        telemetry.resolve_user_id(args.storage, args.value)
     elif args.auth_command == "status":
         token, source = auth.resolve_token(args.token)
         if token is None:
@@ -200,10 +211,29 @@ def _run_auth(args: argparse.Namespace) -> None:
             print(f"Token removed from {auth.config_path()}")
         else:
             print(f"No token in {auth.config_path()}")
+        telemetry.clear_user_id()
+
+
+def _run_telemetry(args: argparse.Namespace) -> None:
+    if args.telemetry_command == "enable":
+        telemetry.enable()
+        print("Telemetry enabled.")
+    elif args.telemetry_command == "disable":
+        telemetry.disable()
+        print(f"Telemetry disabled (saved to {auth.config_path()}).")
+    elif args.telemetry_command == "status":
+        state = "enabled" if telemetry.enabled() else "disabled"
+        print(f"Telemetry is {state}. Details: https://docs.queria.io/telemetry")
 
 
 def main(argv: Sequence[str] | None = None) -> None:
     args = build_parser().parse_args(argv)
+
+    if args.command == "telemetry":
+        _run_telemetry(args)
+        return
+
+    telemetry.show_notice_once()
 
     if args.command == "auth":
         _run_auth(args)
@@ -224,6 +254,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     except (RuntimeError, ValueError) as exc:
         sys.exit(str(exc))
 
+    ok = False
     try:
         if args.command == "list":
             _emit(conn, core.list_datasets_sql(), args.format, args.out)
@@ -262,10 +293,18 @@ def main(argv: Sequence[str] | None = None) -> None:
                     if ds.strip():
                         conn.attach(ds.strip())
             _emit(conn, args.query, args.format, args.out)
+        ok = True
     except (ValueError, core.RateLimitError) as exc:
         sys.exit(str(exc))
     finally:
         conn.close()
+        telemetry.track_command(
+            args.command,
+            frontend="cli",
+            version=core.version(),
+            success=ok,
+            dataset=getattr(args, "dataset", "") or "",
+        )
 
 
 if __name__ == "__main__":

@@ -10,11 +10,12 @@ cannot flood an agent's context. Bulk extraction should go through the CLI's
 
 from __future__ import annotations
 
+import functools
 import json
 import sys
 from typing import Any
 
-from queria import auth, core
+from queria import auth, core, telemetry
 
 DEFAULT_MAX_ROWS = 100
 MAX_ROWS_LIMIT = 1000
@@ -65,6 +66,28 @@ def _relation_payload(
     return payload
 
 
+def _tracked(fn: Any) -> Any:
+    """Send one telemetry event per tool call (see queria.telemetry)."""
+
+    @functools.wraps(fn)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        ok = False
+        try:
+            result = fn(*args, **kwargs)
+            ok = True
+            return result
+        finally:
+            telemetry.track_command(
+                fn.__name__,
+                frontend="mcp",
+                version=core.version(),
+                success=ok,
+                dataset=str(kwargs.get("dataset", "")),
+            )
+
+    return wrapper
+
+
 def build_server(
     storage: str = core.DEFAULT_STORAGE, token: str | None = None
 ) -> Any:
@@ -99,11 +122,13 @@ def build_server(
     )
 
     @server.tool()
+    @_tracked
     def list_datasets() -> dict:
         """List all datasets published on Queria."""
         return _relation_payload(conn.sql(core.list_datasets_sql()))
 
     @server.tool()
+    @_tracked
     def search(
         keyword: str, entry_type: str | None = None, limit: int = 50
     ) -> dict:
@@ -118,6 +143,7 @@ def build_server(
         )
 
     @server.tool()
+    @_tracked
     def get_dataset_info(dataset: str, include_readme: bool = False) -> dict:
         """Show a dataset's metadata (license, source, schemas) as field/value rows."""
         return _relation_payload(
@@ -125,16 +151,19 @@ def build_server(
         )
 
     @server.tool()
+    @_tracked
     def get_schema(dataset: str) -> dict:
         """List a dataset's tables and views with descriptions."""
         return _relation_payload(conn.sql(core.schema_sql(dataset)))
 
     @server.tool()
+    @_tracked
     def get_columns(dataset: str, table: str | None = None) -> dict:
         """List a dataset's columns (optionally for a single table)."""
         return _relation_payload(conn.sql(core.columns_sql(dataset, table)))
 
     @server.tool()
+    @_tracked
     def query(sql: str, max_rows: int = DEFAULT_MAX_ROWS) -> dict:
         """Run a read-only DuckDB SQL query against Queria datasets.
 
