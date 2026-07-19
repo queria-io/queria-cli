@@ -114,7 +114,10 @@ def build_server(
             "SQL with query. Reference tables as <dataset>.<schema>.<table>. "
             "query runs SELECT statements only and cannot write to the "
             "catalog, read local files, or fetch arbitrary URLs; it is not a "
-            "general shell for the host."
+            "general shell for the host. "
+            "Full documentation: https://docs.queria.io/llms.txt (index; "
+            "append .md to any page path for raw Markdown, e.g. "
+            "https://docs.queria.io/reference/mcp-tools.md)."
         ),
     )
     if token is None:
