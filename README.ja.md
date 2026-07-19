@@ -83,6 +83,11 @@ export QUERIA_NO_TELEMETRY=1
 
 https://docs.queria.io/
 
+エージェント向けに機械可読な形式でも配信しています:
+
+- [llms.txt](https://docs.queria.io/llms.txt) — ページ索引 / [llms-full.txt](https://docs.queria.io/llms-full.txt) — 全ページ連結
+- 任意のページパスに `.md` を付けると生 Markdown を取得できます（例: [/reference/cli.md](https://docs.queria.io/reference/cli.md)）
+
 ## License
 
 MIT

@@ -83,6 +83,11 @@ Details: https://docs.queria.io/telemetry
 
 https://docs.queria.io/
 
+The docs are also served in agent-readable form:
+
+- [llms.txt](https://docs.queria.io/llms.txt) — page index / [llms-full.txt](https://docs.queria.io/llms-full.txt) — all pages concatenated
+- Append `.md` to any page path for raw Markdown (e.g. [/reference/cli.md](https://docs.queria.io/reference/cli.md))
+
 ## License
 
 MIT
