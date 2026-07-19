@@ -32,7 +32,15 @@ queria sql "SELECT * FROM zipcode.main.zipcodes" --out zipcodes.parquet
 
 ## API トークン
 
-トークンなしでも使えますが、レートリミットがあります。[https://queria.io/profile/api-keys](https://queria.io/profile/api-keys) で発行したトークンを登録すると上限が上がります:
+トークンなしでも使えますが、レートリミットがあります。ブラウザでログインするとトークン（有効期限 90 日）が発行され、上限が上がります:
+
+```bash
+queria login                    # ブラウザが開いて承認するだけ
+queria login --no-browser       # SSH などでは表示されたコードを貼り付け
+queria logout                   # 保存済みトークンを削除
+```
+
+CI など向けには [https://queria.io/profile/api-keys](https://queria.io/profile/api-keys) で手動発行したトークンも登録できます:
 
 ```bash
 queria auth set-token <token>   # ~/.config/queria/config.toml に保存

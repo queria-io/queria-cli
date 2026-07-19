@@ -161,8 +161,10 @@ class RateLimitError(RuntimeError):
 
 
 RATE_LIMIT_MESSAGE = (
-    "Rate limit reached. Create an API token at https://queria.io/profile/api-keys "
-    "and run `queria auth set-token <token>` to raise the limit."
+    "Rate limit reached. Run `queria login` to get an API token and raise "
+    "the limit (or create one at https://queria.io/profile/api-keys and run "
+    "`queria auth set-token <token>`). Expired tokens are renewed by "
+    "`queria login` as well."
 )
 
 _HTTP_429_RE = re.compile(r"\b429\b")
