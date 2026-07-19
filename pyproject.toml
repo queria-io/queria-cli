@@ -16,6 +16,10 @@ dependencies = [
 mcp = [
     "mcp>=1.2",
 ]
+# semantic-release の build_command 用 (Docker コンテナに uv がないため)
+build = [
+    "uv~=0.8.20",
+]
 
 [project.urls]
 Homepage = "https://docs.queria.io/"
@@ -37,6 +41,13 @@ packages = ["src/queria"]
 version_toml = ["pyproject.toml:project.version"]
 allow_zero_version = true
 major_on_zero = false
+# バージョンバンプ後に uv.lock 内の自パッケージのバージョンも更新してコミットに含める
+# https://python-semantic-release.readthedocs.io/en/latest/configuration/configuration-guides/uv_integration.html
+build_command = """
+    python -m pip install -e '.[build]'
+    uv lock --upgrade-package "$PACKAGE_NAME"
+    git add uv.lock
+"""
 
 [tool.pytest.ini_options]
 addopts = "-m 'not network'"
