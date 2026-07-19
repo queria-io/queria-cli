@@ -32,7 +32,15 @@ Tables are referenced as `<dataset>.<schema>.<table>`. Referenced datasets are a
 
 ## API token
 
-The client works without a token, but rate limits apply. Registering a token issued at [https://queria.io/profile/api-keys](https://queria.io/profile/api-keys) raises the limit:
+The client works without a token, but rate limits apply. Logging in via the browser issues a token (valid for 90 days) and raises the limit:
+
+```bash
+queria login                    # opens the browser for approval
+queria login --no-browser       # for SSH etc.: paste the code shown on the page
+queria logout                   # remove the saved token
+```
+
+Tokens can also be issued manually at [https://queria.io/profile/api-keys](https://queria.io/profile/api-keys) (for CI and other tools) and registered with:
 
 ```bash
 queria auth set-token <token>   # saved to ~/.config/queria/config.toml
