@@ -169,6 +169,17 @@ def build_parser() -> argparse.ArgumentParser:
     )
     _add_output_args(p_sql)
 
+    p_login = sub.add_parser(
+        "login", help="log in via the browser and save an API token"
+    )
+    p_login.add_argument(
+        "--no-browser",
+        action="store_true",
+        help="print the approval URL and paste the code manually (for SSH etc.)",
+    )
+
+    sub.add_parser("logout", help="remove the saved API token")
+
     p_auth = sub.add_parser(
         "auth", help="manage the API token (raises the rate limit)"
     )
@@ -236,6 +247,22 @@ def main(argv: Sequence[str] | None = None) -> None:
         return
 
     telemetry.show_notice_once()
+
+    if args.command == "login":
+        from queria import login
+
+        login.run(no_browser=args.no_browser)
+        return
+
+    if args.command == "logout":
+        if auth.clear_token():
+            print(f"Token removed from {auth.config_path()}")
+        else:
+            print(f"No token in {auth.config_path()}")
+        print(
+            "Tokens can also be revoked at https://queria.io/profile/api-keys"
+        )
+        return
 
     if args.command == "auth":
         _run_auth(args)
