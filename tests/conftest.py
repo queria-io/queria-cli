@@ -16,6 +16,9 @@ def isolate_auth(tmp_path, monkeypatch: pytest.MonkeyPatch) -> None:
     """Keep tests independent of the developer's real token configuration."""
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "xdg-config"))
     monkeypatch.delenv("QUERIA_TOKEN", raising=False)
+    # Telemetry is enabled by default, so keep the whole suite from sending
+    # events to the real endpoint. Telemetry tests opt back in explicitly.
+    monkeypatch.setenv("QUERIA_NO_TELEMETRY", "1")
 
 
 def _attach_writable(con: duckdb.DuckDBPyConnection, root: str, alias: str) -> None:

@@ -194,9 +194,6 @@ def _run_auth(args: argparse.Namespace) -> None:
         except ValueError as exc:
             sys.exit(str(exc))
         print(f"Token saved to {path}")
-        # Resolve the token's owner so telemetry can join CLI usage with
-        # web activity. Failure is fine; telemetry stays anonymous.
-        telemetry.resolve_user_id(args.storage, args.value)
     elif args.auth_command == "status":
         token, source = auth.resolve_token(args.token)
         if token is None:
@@ -211,7 +208,6 @@ def _run_auth(args: argparse.Namespace) -> None:
             print(f"Token removed from {auth.config_path()}")
         else:
             print(f"No token in {auth.config_path()}")
-        telemetry.clear_user_id()
 
 
 def _run_telemetry(args: argparse.Namespace) -> None:

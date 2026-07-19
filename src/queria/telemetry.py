@@ -2,8 +2,8 @@
 
 One minimal event is sent per command (or MCP tool call) to measure
 whether Queria actually gets used: the command name, whether it
-succeeded, the frontend (cli / mcp / python), the package version and the
-target dataset. SQL text, file paths and personal data are never sent.
+succeeded, the frontend (cli / mcp), the package version and the target
+dataset. SQL text, file paths and personal data are never sent.
 See https://docs.queria.io/telemetry for details.
 
 Opt out with any of:
@@ -13,12 +13,13 @@ Opt out with any of:
 - ``queria telemetry disable`` (persists ``telemetry = false`` in the
   config file)
 
-Events go to Google Analytics 4 via the Measurement Protocol. The client
-id is a random UUID stored in the config file; when an API token has been
-saved with ``queria auth set-token``, the token's owner (resolved once via
-the data.queria.io ``/whoami`` endpoint) is attached as the user id so CLI
-usage can be joined with web activity. Sending is fail-silent and must
-never slow down or break a command.
+Events go to Queria's first-party endpoint (``telemetry.queria.io``),
+which validates them against an allowlist before storing; no analytics
+vendor credentials ship in this client. The client id is a random UUID
+stored in the config file. When an API token is configured it is sent as
+the Authorization header so the server can attribute usage to the
+account; the client never handles the account id itself. Sending is
+fail-silent and must never slow down or break a command.
 """
 
 from __future__ import annotations
@@ -27,34 +28,14 @@ import json
 import os
 import sys
 import threading
-import urllib.error
 import urllib.request
 import uuid
 
 from queria import auth
 
-# GA4 Measurement Protocol credentials. The api_secret is not a secret in
-# the usual sense (it only allows writing events) and shipping it in the
-# client is the standard Measurement Protocol setup. Telemetry is disabled
-# entirely while these are unset. The environment variables exist for
-# testing and staging.
-DEFAULT_MEASUREMENT_ID = ""
-DEFAULT_API_SECRET = ""
-DEFAULT_ENDPOINT = "https://www.google-analytics.com/mp/collect"
+DEFAULT_ENDPOINT = "https://telemetry.queria.io"
 
 _TIMEOUT_SECONDS = 2.0
-
-
-def _measurement_id() -> str:
-    return os.environ.get("QUERIA_TELEMETRY_MEASUREMENT_ID", DEFAULT_MEASUREMENT_ID)
-
-
-def _api_secret() -> str:
-    return os.environ.get("QUERIA_TELEMETRY_API_SECRET", DEFAULT_API_SECRET)
-
-
-def _endpoint() -> str:
-    return os.environ.get("QUERIA_TELEMETRY_URL", DEFAULT_ENDPOINT)
 
 NOTICE = (
     "queria collects anonymous usage data (command name and version; never "
@@ -70,10 +51,13 @@ _AGENT_ENV_VARS = {
 }
 
 
+def _endpoint() -> str:
+    """Ingest endpoint; the override exists for tests and staging."""
+    return os.environ.get("QUERIA_TELEMETRY_URL", DEFAULT_ENDPOINT)
+
+
 def enabled() -> bool:
-    """Whether telemetry may be sent (credentials present and not opted out)."""
-    if not _measurement_id() or not _api_secret():
-        return False
+    """Whether telemetry may be sent (not opted out)."""
     if os.environ.get("DO_NOT_TRACK") or os.environ.get("QUERIA_NO_TELEMETRY"):
         return False
     return auth.read_config().get("telemetry", True) is not False
@@ -131,38 +115,6 @@ def agent_context() -> str:
     return ""
 
 
-def resolve_user_id(storage: str, token: str) -> str | None:
-    """Resolve the token's owner via ``GET {storage}/whoami`` and cache it.
-
-    Returns the user id, or ``None`` when resolution fails (telemetry then
-    stays anonymous). Never raises.
-    """
-    try:
-        request = urllib.request.Request(
-            f"{storage}/whoami", headers={"Authorization": f"Bearer {token}"}
-        )
-        with urllib.request.urlopen(request, timeout=_TIMEOUT_SECONDS) as res:
-            user_id = json.loads(res.read().decode("utf-8")).get("user_id")
-    except (OSError, ValueError, urllib.error.URLError):
-        return None
-    if not isinstance(user_id, str) or not user_id:
-        return None
-    config = auth.read_config()
-    config["telemetry_user_id"] = user_id
-    try:
-        auth._write_config(config)
-    except OSError:
-        pass
-    return user_id
-
-
-def clear_user_id() -> None:
-    """Drop the cached user id (called when the token is removed)."""
-    config = auth.read_config()
-    if config.pop("telemetry_user_id", None) is not None:
-        auth._write_config(config)
-
-
 def track_command(
     command: str,
     *,
@@ -196,21 +148,24 @@ def track_command(
             }
         ],
     }
-    user_id = auth.read_config().get("telemetry_user_id")
-    if isinstance(user_id, str) and user_id:
-        payload["user_id"] = user_id
+    # The server resolves the token's owner; the client never sees the
+    # account id.
+    token, _ = auth.resolve_token()
 
-    thread = threading.Thread(target=_post, args=(payload,))
+    thread = threading.Thread(target=_post, args=(payload, token))
     thread.start()
     return thread
 
 
-def _post(payload: dict) -> None:
+def _post(payload: dict, token: str | None) -> None:
     try:
+        headers = {"Content-Type": "application/json"}
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
         request = urllib.request.Request(
-            f"{_endpoint()}?measurement_id={_measurement_id()}&api_secret={_api_secret()}",
+            _endpoint(),
             data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
+            headers=headers,
         )
         urllib.request.urlopen(request, timeout=_TIMEOUT_SECONDS).close()
     except Exception:  # noqa: BLE001 -- telemetry must never break a command
