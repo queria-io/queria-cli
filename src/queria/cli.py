@@ -95,6 +95,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="queria",
         description="Explore Queria public open data (data.queria.io, read-only).",
+        epilog=(
+            "documentation: https://docs.queria.io/\n"
+            "  agent-readable: append .md to any page path, "
+            "or fetch /llms.txt for the index"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "--version", action="version", version=f"queria {core.version()}"
