@@ -29,6 +29,7 @@ def capture_server():
                 {
                     "path": self.path,
                     "authorization": self.headers.get("Authorization"),
+                    "user_agent": self.headers.get("User-Agent"),
                     "body": json.loads(self.rfile.read(length)),
                 }
             )
@@ -98,6 +99,8 @@ def test_track_command_sends_payload(telemetry_env) -> None:
     event = received[0]
     assert event["path"] == "/"
     assert event["authorization"] is None
+    # urllib's default UA is classified as a bot by Cloudflare (403)
+    assert event["user_agent"] == "queria-cli/0.4.0"
     body = event["body"]
     assert body["events"] == [
         {
