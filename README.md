@@ -1,6 +1,6 @@
 # queria
 
-English | [日本語](README.ja.md)
+English | [日本語](https://github.com/queria-io/queria-cli/blob/main/README.ja.md)
 
 Query Japanese open data on [Queria](https://data.queria.io) from the terminal, Python, and MCP.
 
