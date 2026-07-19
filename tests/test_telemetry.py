@@ -19,7 +19,7 @@ from queria.auth import tomllib  # tomli fallback on Python 3.10
 
 @pytest.fixture()
 def capture_server():
-    """Local server capturing POSTed telemetry and answering /whoami GETs."""
+    """Local stand-in for telemetry.queria.io capturing POSTed events."""
     received: list[dict] = []
 
     class Handler(BaseHTTPRequestHandler):
@@ -28,19 +28,12 @@ def capture_server():
             received.append(
                 {
                     "path": self.path,
+                    "authorization": self.headers.get("Authorization"),
                     "body": json.loads(self.rfile.read(length)),
                 }
             )
             self.send_response(204)
             self.end_headers()
-
-        def do_GET(self):  # noqa: N802 -- http.server API
-            body = json.dumps({"user_id": "user-123", "key_id": "key-1"}).encode()
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            self.wfile.write(body)
 
         def log_message(self, *args):
             pass
@@ -54,11 +47,9 @@ def capture_server():
 
 @pytest.fixture()
 def telemetry_env(monkeypatch: pytest.MonkeyPatch, capture_server):
-    """Point telemetry at the capture server with credentials set."""
+    """Point telemetry at the capture server and lift the suite-wide opt-out."""
     url, received = capture_server
-    monkeypatch.setenv("QUERIA_TELEMETRY_MEASUREMENT_ID", "G-TEST")
-    monkeypatch.setenv("QUERIA_TELEMETRY_API_SECRET", "test-secret")
-    monkeypatch.setenv("QUERIA_TELEMETRY_URL", f"{url}/mp/collect")
+    monkeypatch.setenv("QUERIA_TELEMETRY_URL", url)
     monkeypatch.delenv("DO_NOT_TRACK", raising=False)
     monkeypatch.delenv("QUERIA_NO_TELEMETRY", raising=False)
     return url, received
@@ -71,14 +62,11 @@ def _wait_for(received: list, count: int = 1, timeout: float = 5.0) -> None:
     assert len(received) >= count
 
 
-def test_disabled_without_credentials(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("QUERIA_TELEMETRY_MEASUREMENT_ID", raising=False)
-    monkeypatch.delenv("QUERIA_TELEMETRY_API_SECRET", raising=False)
-    assert telemetry.enabled() is (bool(telemetry.DEFAULT_MEASUREMENT_ID) and bool(telemetry.DEFAULT_API_SECRET))
+def test_enabled_by_default(telemetry_env) -> None:
+    assert telemetry.enabled() is True
 
 
 def test_env_opt_outs(monkeypatch: pytest.MonkeyPatch, telemetry_env) -> None:
-    assert telemetry.enabled() is True
     monkeypatch.setenv("DO_NOT_TRACK", "1")
     assert telemetry.enabled() is False
     monkeypatch.delenv("DO_NOT_TRACK")
@@ -103,21 +91,21 @@ def test_track_command_disabled_returns_none(telemetry_env) -> None:
 def test_track_command_sends_payload(telemetry_env) -> None:
     _url, received = telemetry_env
     thread = telemetry.track_command(
-        "sql", frontend="cli", version="0.2.1", success=True, dataset="zipcode"
+        "sql", frontend="cli", version="0.4.0", success=True, dataset="zipcode"
     )
     thread.join(timeout=5)
     _wait_for(received)
     event = received[0]
-    assert "measurement_id=G-TEST" in event["path"]
+    assert event["path"] == "/"
+    assert event["authorization"] is None
     body = event["body"]
-    assert "user_id" not in body
     assert body["events"] == [
         {
             "name": "cli_command",
             "params": {
                 "command": "sql",
                 "frontend": "cli",
-                "app_version": "0.2.1",
+                "app_version": "0.4.0",
                 "success": "true",
                 "dataset": "zipcode",
                 "agent": telemetry.agent_context(),
@@ -126,28 +114,23 @@ def test_track_command_sends_payload(telemetry_env) -> None:
     ]
 
     # The anonymous id is generated once and reused.
-    telemetry.track_command("list", frontend="cli", version="0.2.1", success=False).join(timeout=5)
+    telemetry.track_command("list", frontend="cli", version="0.4.0", success=False).join(timeout=5)
     _wait_for(received, count=2)
     assert received[1]["body"]["client_id"] == body["client_id"]
 
 
-def test_user_id_resolution_and_clear(telemetry_env) -> None:
-    url, received = telemetry_env
-    assert telemetry.resolve_user_id(url, "qk_test") == "user-123"
+def test_token_is_sent_as_bearer_header(telemetry_env) -> None:
+    _url, received = telemetry_env
+    auth.set_token("qk_telemetry_test")
     telemetry.track_command("list", frontend="cli", version="0", success=True).join(timeout=5)
     _wait_for(received)
-    assert received[0]["body"]["user_id"] == "user-123"
-
-    telemetry.clear_user_id()
-    assert "telemetry_user_id" not in auth.read_config()
-
-
-def test_resolve_user_id_fail_silent(telemetry_env) -> None:
-    assert telemetry.resolve_user_id("http://127.0.0.1:1", "qk_test") is None
+    assert received[0]["authorization"] == "Bearer qk_telemetry_test"
+    # user_id はサーバー側で解決するため、クライアントのペイロードには含まれない
+    assert "user_id" not in received[0]["body"]
 
 
 def test_send_fail_silent(monkeypatch: pytest.MonkeyPatch, telemetry_env) -> None:
-    monkeypatch.setenv("QUERIA_TELEMETRY_URL", "http://127.0.0.1:1/mp/collect")
+    monkeypatch.setenv("QUERIA_TELEMETRY_URL", "http://127.0.0.1:1")
     thread = telemetry.track_command("list", frontend="cli", version="0", success=True)
     thread.join(timeout=5)
     assert not thread.is_alive()
