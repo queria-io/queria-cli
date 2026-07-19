@@ -152,14 +152,19 @@ def track_command(
     # account id.
     token, _ = auth.resolve_token()
 
-    thread = threading.Thread(target=_post, args=(payload, token))
+    # Self-identify like the DuckDB httpfs custom_user_agent does.
+    # urllib's default "Python-urllib/x.y" is classified as a bot by
+    # Cloudflare and gets a 403 before reaching the endpoint.
+    user_agent = f"queria-{frontend}/{version}"
+
+    thread = threading.Thread(target=_post, args=(payload, token, user_agent))
     thread.start()
     return thread
 
 
-def _post(payload: dict, token: str | None) -> None:
+def _post(payload: dict, token: str | None, user_agent: str) -> None:
     try:
-        headers = {"Content-Type": "application/json"}
+        headers = {"Content-Type": "application/json", "User-Agent": user_agent}
         if token:
             headers["Authorization"] = f"Bearer {token}"
         request = urllib.request.Request(
