@@ -65,6 +65,8 @@ Works with MCP clients such as Claude Code, Claude Desktop, and Cursor:
 }
 ```
 
+The `query` tool only runs SELECT statements against the Queria catalog. Besides writes, it rejects functions that read local files or arbitrary URLs (`read_text` / `read_csv` / `glob` / `ST_Read`, etc.) and dynamic SQL (`query()`), so agents processing untrusted data cannot use it to read local files or perform SSRF against internal endpoints. If you need unrestricted SQL, such as joining with local data, use the CLI (`queria sql`).
+
 ## Telemetry
 
 To help improve the tool, we collect anonymous usage data (command name, success/failure, version, and target dataset name). SQL contents, file paths, and personal information are never sent. Opt out with any of the following:
