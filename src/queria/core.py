@@ -11,7 +11,6 @@ from __future__ import annotations
 import json
 import re
 import threading
-import urllib.request
 
 import duckdb
 
@@ -22,10 +21,11 @@ CATALOG_ALIAS = "catalog"
 MAX_AUTO_ATTACH = 8
 
 # duckdb version requirement, coupled to Queria's published DuckLake v1 format.
-# The catalog is DuckLake format 1.0; only duckdb >= 1.5.4 ships a ducklake
-# extension new enough to read it. Bump together with the pin in pyproject.toml
-# if Queria's catalog format changes.
-MIN_DUCKDB = (1, 5, 4)
+# The catalog is DuckLake format 1.0; duckdb 1.5.2 is the first release shipping
+# a ducklake extension able to read it (1.5.1 and earlier only handle format
+# 0.4). Bump together with the pin in pyproject.toml if Queria's catalog format
+# changes.
+MIN_DUCKDB = (1, 5, 2)
 
 _IDENT_RE = re.compile(r"^[A-Za-z0-9_]+$")
 _MISSING_CATALOG_RE = re.compile(r'Catalog "?([A-Za-z0-9_]+)"? does not exist')
@@ -207,39 +207,6 @@ def _check_duckdb_version() -> None:
         )
 
 
-def _compat_hint(storage: str, exc: Exception) -> str | None:
-    """Build an actionable message from the storage compatibility manifest.
-
-    Queria publishes ``{storage}/meta.json`` describing the catalog format and
-    the minimum client versions able to read it. The manifest is consulted
-    only after an ATTACH failure, purely to improve the error message; its
-    absence (or any fetch error) is never itself an error.
-    """
-    if not storage.startswith(("http://", "https://")):
-        return None
-    try:
-        with urllib.request.urlopen(f"{storage}/meta.json", timeout=3) as res:
-            meta = json.load(res)
-    except Exception:
-        return None
-    if not isinstance(meta, dict):
-        return None
-    lines = [f"Failed to attach the Queria catalog at {storage}: {exc}"]
-    if "ducklake_format" in meta:
-        lines.append(f"The catalog uses DuckLake format {meta['ducklake_format']}.")
-    if "min_duckdb" in meta:
-        lines.append(
-            f"It requires duckdb >= {meta['min_duckdb']} "
-            f"(you have {duckdb.__version__})."
-        )
-    if "min_cli" in meta:
-        lines.append(
-            f"It requires queria >= {meta['min_cli']} (you have {version()}). "
-            "Upgrade with: pip install -U queria (or clear the uvx cache)."
-        )
-    return "\n".join(lines)
-
-
 class Connection:
     """Read-only connection to Queria's public DuckLake catalogs.
 
@@ -281,13 +248,7 @@ class Connection:
                 f"BEARER_TOKEN '{token}', SCOPE '{_quote(self.storage)}')"
             )
         self._attached: set[str] = set()
-        try:
-            self.attach(CATALOG_ALIAS)
-        except duckdb.Error as exc:
-            hint = _compat_hint(self.storage, exc)
-            if hint:
-                raise RuntimeError(hint) from exc
-            raise
+        self.attach(CATALOG_ALIAS)
 
     def attach(self, dataset: str) -> None:
         """Attach a dataset by name (idempotent)."""
