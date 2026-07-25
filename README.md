@@ -176,4 +176,4 @@ Bug reports and feature requests are welcome as [issues](https://github.com/quer
 
 ## License
 
-[Queria CLI License](https://github.com/queria-io/queria-cli/blob/main/LICENSE). Free to use, including commercially; redistribution is not permitted. Versions 0.10.0 and earlier were published under the MIT License and remain available under those terms.
+MIT

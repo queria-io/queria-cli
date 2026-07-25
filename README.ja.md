@@ -176,4 +176,4 @@ PyPI で配布する各リリースにはソースがそのまま含まれてい
 
 ## License
 
-[Queria CLI License](https://github.com/queria-io/queria-cli/blob/main/LICENSE)。商用を含めて利用は自由ですが、再配布はできません。0.10.0 以前のバージョンは MIT License で公開されており、その条件のまま利用できます。
+MIT
