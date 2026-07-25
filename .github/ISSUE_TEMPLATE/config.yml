@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://docs.queria.io/
+    about: Command reference, MCP setup, dataset declarations and the changelog.
+  - name: Question about the data itself
+    url: https://queria.io
+    about: For questions about a dataset rather than the client, start from the catalog.
+  - name: Report a security vulnerability
+    url: https://github.com/queria-io/queria-cli/security/advisories/new
+    about: Please do not report security issues in public.

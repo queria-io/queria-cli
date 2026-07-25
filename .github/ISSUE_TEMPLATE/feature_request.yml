@@ -1,0 +1,31 @@
+name: Feature request
+description: Suggest something the client should be able to do
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        English and Japanese are both fine. 日本語で書いていただいて構いません。
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: The task you are stuck on, not the feature you have in mind. This is the part we most need.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would help
+      description: A command, an option, an API — however rough.
+    validations:
+      required: false
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: How you work around it today
+    validations:
+      required: false

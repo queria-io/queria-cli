@@ -1,0 +1,64 @@
+name: Bug report
+description: Something in the CLI, the Python API or the MCP server does not work
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        English and Japanese are both fine. 日本語で書いていただいて構いません。
+
+        Do not report security issues here — use [private vulnerability reporting](https://github.com/queria-io/queria-cli/security/advisories/new) instead.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you expect, and what did you get instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: The command or code you ran, and the full output. Redact your API token.
+      render: shell
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `queria --version`
+      placeholder: "0.10.0"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "macOS 15.2 (arm64) / Ubuntu 24.04 / Windows 11"
+    validations:
+      required: true
+
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      description: Output of `python --version`. Leave blank if you ran it with `uvx`.
+      placeholder: "3.12.8"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where did you hit this?
+      options:
+        - CLI (queria ...)
+        - Python API (import queria)
+        - MCP server (queria mcp)
+    validations:
+      required: true
