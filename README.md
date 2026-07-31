@@ -121,6 +121,8 @@ queria auth status              # check
 
 You can also pass a token via the `--token` option or the `QUERIA_TOKEN` environment variable (in that order of precedence).
 
+Setting `QUERIA_TOKEN` to an **empty value** ignores any saved token and accesses the data anonymously. Use it in CI, containers and on shared machines to state that a run uses no token.
+
 ## Python API
 
 ```python

@@ -2,6 +2,49 @@
 
 <!-- version list -->
 
+## v0.16.0 (2026-07-31)
+
+### Bug Fixes
+
+- **cli**: Fail on an unknown dataset or table instead of printing nothing
+
+- **cli**: Keep table columns aligned when values hold newlines
+
+- **cli**: Refuse a --format that contradicts --out
+
+- **cli**: Show a message instead of a traceback for a bad query
+
+- **cli**: 複数文の SQL を黙って捨てず、1文だけ受け付ける
+
+- **core**: Auto-attach a dataset referenced without its schema
+
+- **lake**: Expire against the session's clock, not a UTC reading of it
+
+- **release**: Give the changelog somewhere to write the next version
+
+- **search**: データセットの検索結果が二重に出ないようにする
+
+### Features
+
+- **auth**: Treat an empty QUERIA_TOKEN as an explicit request for anonymous access
+
+- **cli**: Read queria sql from a file or stdin
+
+- **cli**: Write --out to .json and .jsonl
+
+### Performance Improvements
+
+- **core**: Attach the catalog on first reference, not at connect
+
+- **core**: Load spatial when a query first calls an ST_ function
+
+### Refactoring
+
+- **cli**: Drop the bind-only pre-run before COPY
+
+- **cli**: Render results to a stream, not straight to stdout
+
+
 ## v0.15.0 (2026-07-31)
 
 ### Bug Fixes
