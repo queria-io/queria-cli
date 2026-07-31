@@ -1,25 +1,215 @@
 # CHANGELOG
 
+<!-- version list -->
+
+## v0.15.0 (2026-07-31)
+
+### Bug Fixes
+
+- **feedback**: 確認プロンプトを [Y/n] にして誤判定で送信を捨てない
+
+### Continuous Integration
+
+- **release**: Publish an existing tag on demand
+
+### Features
+
+- **feedback**: Queria feedback と submit_feedback を追加
+
+### Testing
+
+- **tools**: Probe the write paths that do not go through dbt
+
+- **tools**: Stand in for the server side, and rotate a real dataset against it
+
+
+## v0.14.0 (2026-07-26)
+
+### Features
+
+- **lake**: Hand a build the catalog as a URL as well as a path
+
+- **lake**: Publish dbt's artifacts alongside the data
+
+
+## v0.13.0 (2026-07-26)
+
+### Features
+
+- **lake**: Create, edit and delete the dataset itself
+
+- **lake**: Expire snapshots and clear the files they held
+
+- **lake**: Implement the credential process a build authenticates through
+
+- **lake**: Publish what the build left in the dataset's storage
+
+- **lake**: Sync — pull, build, publish
+
+- **lake**: Tell a build whether its storage speaks TLS
+
+
+## v0.12.0 (2026-07-26)
+
+### Features
+
+- **lake**: Run a build against the dataset's own storage
+
+### Testing
+
+- **lake**: Pin the two properties the two formats exist for
+
+
+## v0.11.0 (2026-07-26)
+
+### Chores
+
+- **deps**: Bump duckdb from 1.5.4 to 1.5.5 in the patch-updates group
+
+- **deps**: Bump uv from 0.8.24 to 0.11.32
+
+### Continuous Integration
+
+- Dependabot の patch/minor 更新を CI 通過後に自動マージする
+
+- **release**: 公開リポジトリへ README・変更履歴・リリースノートをミラーする
+
+### Documentation
+
+- 開発が非公開リポジトリで行われることを README に書く
+
+### Features
+
+- **lake**: Add the working catalog, and pull onto it
+
+
+## v0.10.0 (2026-07-25)
+
+### Documentation
+
+- README を licenses 任意化と --strict に合わせる
+
+### Features
+
+- **cli**: Validate/compile に --strict を追加
+
+- **dataset**: Commercial_use による拒否をやめる
+
+- **dataset**: Licenses を任意にする
+
+
+## v0.9.1 (2026-07-25)
+
+### Bug Fixes
+
+- **dataset**: Spatial を読み込んでから実データを見る
+
+
+## v0.9.0 (2026-07-25)
+
+### Features
+
+- **dataset**: CC BY 2.1 JP をライセンスレジストリに追加
+
+
+## v0.8.0 (2026-07-25)
+
+### Features
+
+- **dataset**: 公共データ利用規約（第1.0版）をライセンスレジストリに追加
+
+
+## v0.7.0 (2026-07-25)
+
+### Documentation
+
+- Queria dataset の使い方を README に追加
+
+- Read-only という説明をやめる
+
+### Features
+
+- **cli**: Queria dataset サブコマンドを追加
+
+- **cli**: Queria init を追加する
+
+- **dataset**: データセット宣言の検証と dataset.json ビルドを追加
+
+### Refactoring
+
+- **cli**: Dataset グループをやめて validate / compile をトップレベルにする
+
+- **dataset**: 英語に統一し spec を 0.1 にする
+
+
+## v0.6.1 (2026-07-19)
+
+### Bug Fixes
+
+- Duckdb の必要バージョンを 1.5.2 に修正
+
+### Refactoring
+
+- **core**: 実在しない互換マニフェストの参照を削除
+
+
+## v0.6.0 (2026-07-19)
+
+### Documentation
+
+- Mention queria login first in the README quickstart
+
+- Use absolute URLs for README language switch links
+
+### Features
+
+- Add browser-based login and logout commands
+
+
+## v0.5.1 (2026-07-19)
+
+### Bug Fixes
+
+- テレメトリ送信に User-Agent を設定 (Cloudflare のボット判定で 403 になるため)
+
+
+## v0.5.0 (2026-07-19)
+
+### Chores
+
+- Sync queria version in uv.lock with released version
+
+### Continuous Integration
+
+- Update uv.lock during semantic-release version bump
+
+
+## v0.4.0 (2026-07-19)
+
+### Chores
+
+- **deps**: Bump actions/checkout from 5 to 7
+
+- **deps**: Bump python-semantic-release/python-semantic-release
+
+### Documentation
+
+- Describe agent-readable docs endpoints in the READMEs
+
+- Translate README to English, keep Japanese as README.ja.md
+
+### Features
+
+- Link agent-readable docs from --help and MCP instructions
+
+- テレメトリの送信先を第一者エンドポイント telemetry.queria.io に変更
+
 
 ## v0.3.1 (2026-07-18)
 
 ### Bug Fixes
 
 - **mcp**: Block filesystem, SSRF and dynamic-SQL access from the query tool
-
-The query tool gated SQL only with is_read_only(), an advisory check on the leading keyword. A
-  SELECT could still read local files via read_text() / read_csv() / glob() / ST_Read(), reach
-  internal endpoints (read_csv('http://169.254.169.254/...')), or smuggle any of these past
-  inspection with query('...'). An MCP client driven by untrusted data could be made to exfiltrate
-  secrets (e.g. ~/.ssh/id_rsa) through the tool result.
-
-Reject these functions in the query tool. core.unsafe_function() parses the SQL with DuckDB's own
-  parser (json_serialize_sql) and walks the AST, so a call is found regardless of nesting, with a
-  lexical scan as a fail-closed fallback for statements the parser refuses. The CLI keeps
-  unrestricted SQL: it is run by a trusted local user, not an untrusted agent.
-
-Also correct the tool docstring and server instructions, which described the tool as plain
-  "read-only" and implied it was safe.
 
 ### Continuous Integration
 
@@ -28,9 +218,6 @@ Also correct the tool docstring and server instructions, which described the too
 ### Documentation
 
 - Describe query tool sandboxing in the README
-
-Note that the MCP query tool runs SELECT-only over the catalogs and blocks file/URL readers and
-  dynamic SQL, and point users at the CLI when they need unrestricted SQL.
 
 
 ## v0.3.0 (2026-07-18)
@@ -45,7 +232,7 @@ Note that the MCP query tool runs SELECT-only over the catalogs and blocks file/
 
 ### Features
 
-- Cli コマンドと MCP ツール呼び出しにテレメトリを配線
+- CLI コマンドと MCP ツール呼び出しにテレメトリを配線
 
 - 匿名・オプトアウト可能なテレメトリ基盤を追加
 
@@ -55,10 +242,6 @@ Note that the MCP query tool runs SELECT-only over the catalogs and blocks file/
 ### Bug Fixes
 
 - **cli**: Align read-only error message with accepted statements
-
-The read-only guard accepts VALUES, TABLE, and FROM statements in addition to the seven listed in
-  the rejection message. Centralize the message as core.READONLY_ERROR next to _READONLY_RE and list
-  all ten accepted statement types.
 
 
 ## v0.2.0 (2026-07-17)
@@ -83,46 +266,15 @@ The read-only guard accepts VALUES, TABLE, and FROM statements in addition to th
 
 - Add API token support
 
-Resolve tokens from --token flag, QUERIA_TOKEN env var, or ~/.config/queria/config.toml, and create
-  a scoped DuckDB HTTP secret (BEARER_TOKEN) on connect. Add 'queria auth set-token/status/clear'
-  subcommands and a rate-limit hint on HTTP 429
-
 - Add info command and get_dataset_info MCP tool
-
-Shows a dataset's metadata (license, source URL, repository, schemas, last build time) as
-  field/value rows. The README body is opt-in via --readme / include_readme because it can be long.
 
 - Add summarize command
 
-Runs DuckDB SUMMARIZE against a table referenced as dataset.schema.table (schema defaults to main).
-  Documents that it scans the whole table over HTTP.
-
 - Cross-catalog search over datasets, tables and columns
-
-Replaces the dataset-only search with a search across datasets, tables and columns backed by
-  catalog.main.mart_search_entries. The MCP search_datasets tool is renamed to search accordingly.
 
 - **cli**: Add markdown output format
 
 
 ## v0.1.0 (2026-07-11)
 
-### Chores
-
-- Update org references from flo8s to queria-io
-
-### Continuous Integration
-
-- Test, docs deploy, and release workflows
-
-### Documentation
-
-- Documentation site for docs.queria.io
-
-### Features
-
-- **cli**: Subcommand interface with table/csv/json/jsonl and file output
-
-- **core**: Read-only connection with auto-attach and catalog queries
-
-- **mcp**: Stdio MCP server with row and payload caps
+- Initial Release
