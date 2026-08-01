@@ -163,9 +163,21 @@ Details: https://docs.queria.io/telemetry
 
 ## Documentation
 
-https://docs.queria.io/
+The documentation is readable from the terminal, so an agent needs no browser:
 
-The docs are also served in agent-readable form:
+```bash
+queria docs list                     # every page, with the name `docs show` takes
+queria docs show reference/cli       # one page as Markdown
+queria docs show reference/cli --lang ja
+```
+
+Pages are read from docs.queria.io and cached, so a run that has lost its
+connection still gets the copy it read last. The MCP server exposes the same
+two as the `list_docs` and `show_doc` tools.
+
+The same pages in a browser: https://docs.queria.io/
+
+They are also served in agent-readable form:
 
 - [llms.txt](https://docs.queria.io/llms.txt) — page index / [llms-full.txt](https://docs.queria.io/llms-full.txt) — all pages concatenated
 - Append `.md` to any page path for raw Markdown (e.g. [/reference/cli.md](https://docs.queria.io/reference/cli.md))

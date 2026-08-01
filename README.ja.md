@@ -163,7 +163,17 @@ export QUERIA_NO_TELEMETRY=1
 
 ## ドキュメント
 
-https://docs.queria.io/
+ドキュメントは端末から読めるので、エージェントにブラウザは要りません:
+
+```bash
+queria docs list                     # 全ページと、`docs show` に渡す名前
+queria docs show reference/cli       # 1 ページを Markdown で表示
+queria docs show reference/cli --lang ja
+```
+
+ページは docs.queria.io から取得してキャッシュするため、接続を失った実行でも最後に読んだ内容は表示できます。MCP サーバーは同じものを `list_docs` / `show_doc` ツールとして公開しています。
+
+同じ内容をブラウザで: https://docs.queria.io/
 
 エージェント向けに機械可読な形式でも配信しています:
 

@@ -2,6 +2,29 @@
 
 <!-- version list -->
 
+## v0.18.0 (2026-08-01)
+
+### Bug Fixes
+
+- **cli**: テーブルのセルを切り詰めずに折り返す
+
+- **cli**: テーブル出力が非 TTY で黙って切られないようにする
+
+### Chores
+
+- **deps**: Bump uv from 0.11.32 to 0.12.0 in the minor-and-patch group
+
+### Features
+
+- **docs**: Queria docs list / show でドキュメントを端末から読めるようにする
+
+- **push**: Publish preview rows and map geometry for published tables
+
+### Refactoring
+
+- **dataset**: Extract the read-only attach from schema reading
+
+
 ## v0.17.0 (2026-07-31)
 
 ### Features
