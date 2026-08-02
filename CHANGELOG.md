@@ -2,6 +2,13 @@
 
 <!-- version list -->
 
+## v0.20.0 (2026-08-02)
+
+### Features
+
+- Make Secret a no-op when the build writes to a path
+
+
 ## v0.19.1 (2026-08-02)
 
 ### Bug Fixes
