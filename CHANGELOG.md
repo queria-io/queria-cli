@@ -2,6 +2,21 @@
 
 <!-- version list -->
 
+## v0.19.0 (2026-08-02)
+
+### Continuous Integration
+
+- **release**: ミラーの認証を GitHub App のインストールトークンにする
+
+- **release**: ミラーを別ジョブに分け、publish に skip-existing を付ける
+
+- **release**: 内部リンクの除去が取りこぼす形を塞ぐ
+
+### Features
+
+- Add Secret, which keeps a long build's credentials alive
+
+
 ## v0.18.0 (2026-08-01)
 
 ### Bug Fixes
