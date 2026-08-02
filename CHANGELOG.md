@@ -2,6 +2,13 @@
 
 <!-- version list -->
 
+## v0.19.1 (2026-08-02)
+
+### Bug Fixes
+
+- **preview**: 地図プレビューを .geo.json に、中身を FeatureCollection にする
+
+
 ## v0.19.0 (2026-08-02)
 
 ### Continuous Integration
