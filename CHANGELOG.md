@@ -2,6 +2,13 @@
 
 <!-- version list -->
 
+## v0.21.0 (2026-08-03)
+
+### Features
+
+- **cli**: Create --owner and refuse an ambiguous dataset name
+
+
 ## v0.20.0 (2026-08-02)
 
 ### Features
