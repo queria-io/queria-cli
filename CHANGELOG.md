@@ -2,6 +2,85 @@
 
 <!-- version list -->
 
+## v0.22.0 (2026-09-01)
+
+### Bug Fixes
+
+- プレビューの読み取りも期限の内側で署名する
+
+- 一つの期限より長い push でも署名が通るようにする
+
+- 存在確認と候補取得の失敗で元のエラーを覆い隠さない
+
+- **catalog**: Match a qualified name exactly, newline and all
+
+- **catalog**: カタログを差し替えるとき、前のカタログのログも捨てる
+
+- **ci**: Release をセルフホステッドから戻す
+
+- **cli**: 存在しないデータセット名に did-you-mean 付きのメッセージを返す
+
+- **core**: 存在しないデータセットの attach を NoSuchDatasetError にする
+
+- **core**: 存在確認のトークンをリダイレクト先へ渡さない
+
+- **mcp**: Mcp 2.0 の API に追従する
+
+### Chores
+
+- **deps**: Bump actions/create-github-app-token from 2 to 3
+
+- **deps**: Bump uv from 0.12.0 to 0.12.1 in the minor-and-patch group
+
+- **deps-dev**: Bump mcp from 1.28.1 to 2.0.0
+
+### Continuous Integration
+
+- GitHub ホストランナーに戻す
+
+- Main への push で CI と Release がテストを二重に回すのをやめる
+
+- Release のジョブにタイムアウトと uv キャッシュを入れる
+
+- 今月はセルフホステッドランナーで回す
+
+- 今月はセルフホステッドランナーで回す
+
+### Documentation
+
+- **dataset**: Quote の docstring を実際の呼び出し元に合わせる
+
+### Features
+
+- Expose Queria's catalog as a Python API
+
+- 何が起点でどこの所属かを名乗れるようにする
+
+- **cli**: Name the account that published each dataset
+
+### Refactoring
+
+- Catalog データセットへの依存を外す
+
+- **catalog**: Keep the published-table rule with the data
+
+- **dataset**: Move identifier quoting into physical
+
+### Testing
+
+- Fail any test that leaves loopback
+
+- Report a blocked fixture once, not twice
+
+- Stop the suite from pulling and listing against production
+
+- サーバを立てる fixture の teardown 待ちをなくす
+
+- **core**: 存在確認が HEAD で聞いたことを見る
+
+- **core**: 存在確認がトークンを持って行くことを確かめる
+
+
 ## v0.21.0 (2026-08-03)
 
 ### Features

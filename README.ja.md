@@ -128,8 +128,15 @@ queria auth status              # 確認
 ```python
 import queria
 
+# 何が公開されていて、何が入っているか
+queria.list_datasets()
+queria.search("人口")
+queria.tables("calendar")
+queria.columns("calendar", "mart_calendar")
+
+# データそのもの
 with queria.connect() as conn:
-    conn.sql("SELECT * FROM catalog.main.mart_datasets").show()
+    conn.sql("SELECT * FROM calendar.main.mart_calendar LIMIT 10").show()
 ```
 
 ## MCP サーバー
@@ -160,6 +167,21 @@ export QUERIA_NO_TELEMETRY=1
 ```
 
 詳細: https://docs.queria.io/telemetry
+
+### 自分のトラフィックを利用実績から外す
+
+Queria 本体や、Queria に公開しているデータセットの開発をしているなら、そのマシンの
+所属を一度設定しておくと、以降のリクエストがすべてそれを名乗ります:
+
+```bash
+export QUERIA_AFFILIATION=internal   # 設定ファイルなら affiliation = "internal"
+```
+
+User-Agent に載る (`queria-cli/0.21.0 (aff=internal)`) ので、ビルド・CI・開発機を
+データの利用者と区別できます。データセットのビルドは、誰も何も設定しなくても
+`queria-build` として名乗ります。
+
+これは計測にのみ使います。リクエストで何ができるかも、レート制限も変わりません。
 
 ## ドキュメント
 

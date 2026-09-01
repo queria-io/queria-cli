@@ -128,8 +128,15 @@ Setting `QUERIA_TOKEN` to an **empty value** ignores any saved token and accesse
 ```python
 import queria
 
+# what is published, and what is in it
+queria.list_datasets()
+queria.search("population")
+queria.tables("calendar")
+queria.columns("calendar", "mart_calendar")
+
+# the data itself
 with queria.connect() as conn:
-    conn.sql("SELECT * FROM catalog.main.mart_datasets").show()
+    conn.sql("SELECT * FROM calendar.main.mart_calendar LIMIT 10").show()
 ```
 
 ## MCP server
@@ -160,6 +167,22 @@ export QUERIA_NO_TELEMETRY=1
 ```
 
 Details: https://docs.queria.io/telemetry
+
+### Keeping your own traffic out of the usage figures
+
+If you work on Queria itself, or on a dataset published to it, set the machine's
+affiliation once and every request it makes says so:
+
+```bash
+export QUERIA_AFFILIATION=internal   # or `affiliation = "internal"` in the config file
+```
+
+It travels in the user agent (`queria-cli/0.21.0 (aff=internal)`), so builds,
+CI and a contributor's laptop can be told apart from people using the data.
+Dataset builds are named `queria-build` without anyone setting anything.
+
+This is used for measurement and nothing else. It does not change what a
+request may do, or how it is rate limited.
 
 ## Documentation
 
