@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.23.0 (2026-09-01)
+
+### Bug Fixes
+
+- **mcp**: Read past a comment when scanning for unsafe functions
+
+- **sql**: Read past a leading comment in the read-only guard
+
+### Features
+
+- **sql**: Accept PIVOT and UNPIVOT
+
+
 ## v0.22.0 (2026-09-01)
 
 ### Bug Fixes
