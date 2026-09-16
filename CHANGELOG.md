@@ -2,6 +2,21 @@
 
 <!-- version list -->
 
+## v0.25.0 (2026-09-16)
+
+### Bug Fixes
+
+- **skills**: 読めないファイルと空ディレクトリが --force を止めないようにする
+
+### Documentation
+
+- **readme**: エージェントスキルの導入を載せる
+
+### Features
+
+- **skills**: 公式スキルをエージェントの置き場に書き込む queria skills を足す
+
+
 ## v0.24.1 (2026-09-15)
 
 ### Bug Fixes

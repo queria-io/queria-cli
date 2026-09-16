@@ -139,6 +139,18 @@ with queria.connect() as conn:
     conn.sql("SELECT * FROM calendar.main.mart_calendar LIMIT 10").show()
 ```
 
+## Agent skills
+
+Install the [Queria agent skills](https://github.com/queria-io/skills), which teach a coding agent how to find and query the data:
+
+```bash
+queria skills list                   # every published skill
+queria skills install                # install them into this project
+queria skills install --global       # or for every project on this machine
+```
+
+They go into `.agents/skills`, which Codex, Cursor, OpenCode and others read, and into `.claude/skills` wherever Claude Code is set up. A skill you have edited yourself is never replaced without `--force`.
+
 ## MCP server
 
 Works with MCP clients such as Claude Code, Claude Desktop, and Cursor:

@@ -139,6 +139,18 @@ with queria.connect() as conn:
     conn.sql("SELECT * FROM calendar.main.mart_calendar LIMIT 10").show()
 ```
 
+## エージェントスキル
+
+コーディングエージェントにデータの探し方と引き方を教える [Queria のエージェントスキル](https://github.com/queria-io/skills)をインストールします:
+
+```bash
+queria skills list                   # 配布しているスキルの一覧
+queria skills install                # このプロジェクトに導入
+queria skills install --global       # このマシンの全プロジェクトに導入
+```
+
+書き込み先は Codex・Cursor・OpenCode などが読む `.agents/skills` と、Claude Code が設定されている環境では `.claude/skills` です。自分で書き換えたスキルは `--force` なしには置き換えません。
+
 ## MCP サーバー
 
 Claude Code / Claude Desktop / Cursor などの MCP クライアントから使えます:
