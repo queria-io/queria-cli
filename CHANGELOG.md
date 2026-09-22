@@ -2,6 +2,13 @@
 
 <!-- version list -->
 
+## v0.25.3 (2026-09-22)
+
+### Bug Fixes
+
+- **lake**: 曖昧さの解消で案内する <handle>/<name> を lake のコマンドが受け取る
+
+
 ## v0.25.2 (2026-09-21)
 
 ### Bug Fixes
