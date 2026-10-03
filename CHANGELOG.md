@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.26.0 (2026-10-03)
+
+### Chores
+
+- **tools**: Rotate の読み戻しで spatial を読み込む
+
+### Features
+
+- **dataset**: ライセンスのレジストリに CDLA-Permissive-2.0・Apache-2.0・CC-BY-2.0・CC-BY-3.0 を足す
+
+
 ## v0.25.3 (2026-09-22)
 
 ### Bug Fixes
