@@ -2,6 +2,23 @@
 
 <!-- version list -->
 
+## v0.27.0 (2026-10-03)
+
+### Bug Fixes
+
+- **cli**: Search の引数不足を fail() で止め、MCP の同じ経路にテストを足す
+
+### Documentation
+
+- **readme**: 宣言の例から語彙に無い entity 名を外す
+
+### Features
+
+- **catalog**: Search で列の条件・キー・位置情報を指定できるようにする
+
+- **dataset**: Semantic.name の entity 語彙を置き、語彙に無い名前を警告する
+
+
 ## v0.26.0 (2026-10-03)
 
 ### Chores

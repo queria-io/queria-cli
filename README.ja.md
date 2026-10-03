@@ -20,6 +20,7 @@ Python 3.10+ が必要です。
 ```bash
 queria list                              # データセット一覧
 queria search 人口                        # データセット・テーブル・カラムの横断検索
+queria search --column 町丁目 --column 人口  # 両方の列を持つテーブル
 queria info e_stat                       # メタデータ（ライセンス・出典など）
 queria schema e_stat                     # テーブル一覧
 queria columns e_stat mart_population    # カラム一覧
@@ -64,7 +65,6 @@ published: true
 fields:
   - name: date
     title: 日付
-    semantic: { role: entity, name: date }
 ```
 
 列構成が同じテーブルが並ぶときは 1 ファイルにまとめられます。YAML アンカーで共通部分を持てます:
@@ -131,6 +131,7 @@ import queria
 # 何が公開されていて、何が入っているか
 queria.list_datasets()
 queria.search("人口")
+queria.search(columns=["町丁目", "人口"], geo=True)
 queria.tables("calendar")
 queria.columns("calendar", "mart_calendar")
 

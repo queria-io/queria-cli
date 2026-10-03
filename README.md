@@ -20,6 +20,7 @@ Requires Python 3.10+.
 ```bash
 queria list                              # list datasets
 queria search 人口                        # search datasets, tables and columns
+queria search --column 町丁目 --column 人口  # tables holding both columns
 queria info e_stat                       # metadata (license, source, etc.)
 queria schema e_stat                     # list tables
 queria columns e_stat mart_population    # list columns
@@ -64,7 +65,6 @@ published: true
 fields:
   - name: date
     title: Date
-    semantic: { role: entity, name: date }
 ```
 
 Tables that share a column layout can go in one file, so YAML anchors can carry the shared part:
@@ -131,6 +131,7 @@ import queria
 # what is published, and what is in it
 queria.list_datasets()
 queria.search("population")
+queria.search(columns=["町丁目", "人口"], geo=True)
 queria.tables("calendar")
 queria.columns("calendar", "mart_calendar")
 
