@@ -2,6 +2,13 @@
 
 <!-- version list -->
 
+## v0.29.0 (2026-10-18)
+
+### Features
+
+- **dataset**: Export dataset.json as DCAT JSON-LD for DCAT-GoJ
+
+
 ## v0.28.0 (2026-10-18)
 
 ### Features
