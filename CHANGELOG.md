@@ -2,6 +2,13 @@
 
 <!-- version list -->
 
+## v0.28.0 (2026-10-18)
+
+### Features
+
+- **dataset**: Add title_kana, issued and local government codes for DCAT-GoJ
+
+
 ## v0.27.0 (2026-10-03)
 
 ### Bug Fixes
