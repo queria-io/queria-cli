@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.32.0 (2026-10-23)
+
+### Bug Fixes
+
+- **lake**: Count a version as a build, not a snapshot
+
+### Features
+
+- **lake**: Count kept history in versions with --keep-versions
+
+- **lake**: Keep no history by default when pushing
+
+
 ## v0.31.0 (2026-10-23)
 
 ### Bug Fixes
