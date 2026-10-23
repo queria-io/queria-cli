@@ -2,6 +2,13 @@
 
 <!-- version list -->
 
+## v0.34.0 (2026-10-23)
+
+### Features
+
+- **dataset**: テーブルに primary_key を宣言し、実データで一意と非 NULL を確かめる
+
+
 ## v0.33.1 (2026-10-23)
 
 ### Bug Fixes
