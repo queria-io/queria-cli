@@ -2,6 +2,13 @@
 
 <!-- version list -->
 
+## v0.33.1 (2026-10-23)
+
+### Bug Fixes
+
+- **push**: Publish the catalog with 16 KiB blocks
+
+
 ## v0.33.0 (2026-10-23)
 
 ### Features
