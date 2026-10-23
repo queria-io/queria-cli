@@ -2,6 +2,13 @@
 
 <!-- version list -->
 
+## v0.30.0 (2026-10-23)
+
+### Features
+
+- **publish**: Write 10 rows per table preview instead of 100
+
+
 ## v0.29.0 (2026-10-18)
 
 ### Features
