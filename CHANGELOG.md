@@ -2,6 +2,13 @@
 
 <!-- version list -->
 
+## v0.33.0 (2026-10-23)
+
+### Features
+
+- **dataset**: 語彙を queria-io/vocabulary の写しに替え、semantic の検査を足す
+
+
 ## v0.32.0 (2026-10-23)
 
 ### Bug Fixes
