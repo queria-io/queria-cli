@@ -2,6 +2,23 @@
 
 <!-- version list -->
 
+## v0.31.0 (2026-10-23)
+
+### Bug Fixes
+
+- **page**: Take the folder name for a bare index.md and confirm deletes interactively
+
+### Features
+
+- **page**: Add queria page commands and MCP page tools
+
+- **page**: Read public pages without an API token
+
+### Testing
+
+- **page**: Drop unused noqa directives
+
+
 ## v0.30.0 (2026-10-23)
 
 ### Features
