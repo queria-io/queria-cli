@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.37.1 (2026-10-24)
+
+### Bug Fixes
+
+- **api**: Retry lookups, minting and publishing after a 5xx or a timeout
+
+- **dbt**: Keep a dbt build's S3 secret alive with a dbt-duckdb plugin
+
+
 ## v0.37.0 (2026-10-24)
 
 ### Bug Fixes
