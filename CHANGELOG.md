@@ -2,6 +2,20 @@
 
 <!-- version list -->
 
+## v0.35.1 (2026-10-24)
+
+### Bug Fixes
+
+- Accept any case and spacing around `as` in --datasets
+
+
+## v0.35.0 (2026-10-24)
+
+### Features
+
+- Name an attached dataset something else with `as`
+
+
 ## v0.34.2 (2026-10-24)
 
 ### Bug Fixes
