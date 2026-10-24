@@ -2,6 +2,13 @@
 
 <!-- version list -->
 
+## v0.34.2 (2026-10-24)
+
+### Bug Fixes
+
+- **push**: Also check the catalog after a 412, and record its hash on put()
+
+
 ## v0.34.1 (2026-10-24)
 
 ### Bug Fixes
