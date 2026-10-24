@@ -2,6 +2,13 @@
 
 <!-- version list -->
 
+## v0.39.0 (2026-10-24)
+
+### Features
+
+- **dataset**: Declare the themes a dataset or table belongs to, checked against the vocabulary
+
+
 ## v0.38.0 (2026-10-24)
 
 ### Bug Fixes
