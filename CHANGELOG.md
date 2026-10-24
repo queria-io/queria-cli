@@ -2,6 +2,18 @@
 
 <!-- version list -->
 
+## v0.37.0 (2026-10-24)
+
+### Bug Fixes
+
+- **dataset**: Restore the leading zero of integer area codes and warn instead of failing on an
+  unreadable column
+
+### Features
+
+- **dataset**: Write the areas each published table covers as spatial_coverage
+
+
 ## v0.36.0 (2026-10-24)
 
 ### Bug Fixes
