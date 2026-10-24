@@ -2,6 +2,13 @@
 
 <!-- version list -->
 
+## v0.39.2 (2026-10-24)
+
+### Bug Fixes
+
+- **push**: Ask Queria to check the declarations before the catalog is replaced
+
+
 ## v0.39.1 (2026-10-24)
 
 ### Bug Fixes
