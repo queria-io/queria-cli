@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.39.1 (2026-10-24)
+
+### Bug Fixes
+
+- **push**: Keep a refused secret or renewal from failing the push
+
+- **push**: Read the tables' areas and periods with the storage credentials
+
+
 ## v0.39.0 (2026-10-24)
 
 ### Features
