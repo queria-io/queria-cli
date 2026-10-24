@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.35.2 (2026-10-24)
+
+### Bug Fixes
+
+- **lake**: Always call the flush instead of counting inline rows first
+
+- **lake**: Flush rows older versions left inline when expiring
+
+
 ## v0.35.1 (2026-10-24)
 
 ### Bug Fixes
