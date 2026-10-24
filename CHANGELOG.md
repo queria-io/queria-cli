@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.38.0 (2026-10-24)
+
+### Bug Fixes
+
+- **dataset**: Read an unquoted dataset temporal_coverage as text like a table's
+
+### Features
+
+- **dataset**: Write the period each table covers from its year, month or date column
+
+
 ## v0.37.1 (2026-10-24)
 
 ### Bug Fixes
