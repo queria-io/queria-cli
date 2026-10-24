@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.34.1 (2026-10-24)
+
+### Bug Fixes
+
+- **push**: Check the catalog after any failed write but 412, not only a 5xx
+
+- **push**: Publish a catalog that storage stored behind a 5xx
+
+
 ## v0.34.0 (2026-10-23)
 
 ### Features
