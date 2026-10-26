@@ -2,6 +2,23 @@
 
 <!-- version list -->
 
+## v0.42.0 (2026-10-26)
+
+### Bug Fixes
+
+- **push**: Tell a source's schema and case apart when deciding which tables to drop
+
+- Refresh credentials for every statistics read and remove stale files of statistics that could not be built
+
+- Leave geometry columns out of the statistics
+
+### Features
+
+- **push**: Drop tables the dbt project no longer builds from the catalog
+
+- Write table statistics on push so the browser need not read every row
+
+
 ## v0.41.0 (2026-10-25)
 
 ### Bug Fixes
