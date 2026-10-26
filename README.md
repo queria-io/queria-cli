@@ -56,9 +56,9 @@ contributors:
 ```
 
 ```yaml
-# models/main/mart/mart_calendar.table.yml
-schema: main
-name: mart_calendar
+# models/calendar/day.table.yml
+schema: calendar
+name: day
 title: Japanese calendar
 description: A date spine with holidays, weekdays, Japanese eras and fiscal years.
 published: true
@@ -133,11 +133,11 @@ queria.list_datasets()
 queria.search("population")
 queria.search(columns=["町丁目", "人口"], geo=True)
 queria.tables("calendar")
-queria.columns("calendar", "mart_calendar")
+queria.columns("calendar", "day")
 
 # the data itself
 with queria.connect() as conn:
-    conn.sql("SELECT * FROM calendar.main.mart_calendar LIMIT 10").show()
+    conn.sql("SELECT * FROM calendar.calendar.day LIMIT 10").show()
 ```
 
 ## Agent skills

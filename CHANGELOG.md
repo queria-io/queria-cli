@@ -2,6 +2,54 @@
 
 <!-- version list -->
 
+## v0.41.0 (2026-10-25)
+
+### Bug Fixes
+
+- **catalog**: Name every catalog request by who is asking
+
+- **catalog**: Say Pro is needed when a premium dataset cannot be opened
+
+- **cli**: Encode the api path, refuse a body on GET and read --input like --file
+
+- **cli**: Read queria api flags as gh api does, and filter dataset list on the server
+
+- **core**: Compare attached URLs without the premium grant
+
+- **mcp**: Tell an empty result from rows that match no boundary in show_sql
+
+### Features
+
+- **cli**: Add page list/open, dataset, plan and api commands
+
+- **mcp**: Add show_sql, which opens the result and its map in the browser
+
+### Performance Improvements
+
+- **mcp**: Narrow the boundaries to the result's codes before show_sql joins them
+
+
+## v0.40.0 (2026-10-25)
+
+### Bug Fixes
+
+- **sql**: Cover --out csv/parquet, SHOW TABLES and pg_catalog in the catalog-view note
+
+- **sql**: Explain an empty answer from DuckDB's catalog views
+
+### Documentation
+
+- 例の暦の表名を calendar.calendar.day にする
+
+### Features
+
+- **search**: Show each table's period and keys, and name the local MCP
+
+### Testing
+
+- **sql**: Cover the catalog-view note on the --out json path
+
+
 ## v0.39.2 (2026-10-24)
 
 ### Bug Fixes
