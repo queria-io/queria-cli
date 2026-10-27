@@ -2,9 +2,9 @@
 
 English | [日本語](https://github.com/queria-io/queria-cli/blob/main/README.ja.md)
 
-Query Japanese open data on [Queria](https://data.queria.io) from the terminal, Python, and MCP.
+Query Japanese open data on [Queria](https://data.queria.io) from the terminal and Python.
 
-A client for the Japanese open data published on [Queria](https://data.queria.io) — e-Stat, National Land Numerical Information, EDINET, the Japan Meteorological Agency, and more. Explore it from the terminal, Python and MCP, and declare your own datasets for the catalog. The data is published in DuckLake format, and all computation runs locally in DuckDB.
+A client for the Japanese open data published on [Queria](https://data.queria.io) — e-Stat, National Land Numerical Information, EDINET, the Japan Meteorological Agency, and more. Explore it from the terminal and Python, and declare your own datasets for the catalog. The data is published in DuckLake format, and all computation runs locally in DuckDB.
 
 ## Installation
 
@@ -154,20 +154,7 @@ They go into `.agents/skills`, which Codex, Cursor, OpenCode and others read, an
 
 ## MCP server
 
-Works with MCP clients such as Claude Code, Claude Desktop, and Cursor:
-
-```json
-{
-  "mcpServers": {
-    "queria": {
-      "command": "uvx",
-      "args": ["--from", "queria[mcp]", "queria", "mcp"]
-    }
-  }
-}
-```
-
-The `query` tool only runs SELECT statements against the Queria catalog. Besides writes, it rejects functions that read local files or arbitrary URLs (`read_text` / `read_csv` / `glob` / `ST_Read`, etc.) and dynamic SQL (`query()`), so agents processing untrusted data cannot use it to read local files or perform SSRF against internal endpoints. If you need unrestricted SQL, such as joining with local data, use the CLI (`queria sql`).
+Queria's MCP server runs at `https://queria.io/mcp`; add that URL to your MCP client, with nothing to install. The `queria mcp` command has been removed: replace `uvx --from 'queria[mcp]' queria mcp` in your client's settings with the URL. Setup: https://docs.queria.io/en/mcp
 
 ## Telemetry
 
@@ -208,8 +195,7 @@ queria docs show reference/cli --lang ja
 ```
 
 Pages are read from docs.queria.io and cached, so a run that has lost its
-connection still gets the copy it read last. The MCP server exposes the same
-two as the `list_docs` and `show_doc` tools.
+connection still gets the copy it read last.
 
 The same pages in a browser: https://docs.queria.io/
 

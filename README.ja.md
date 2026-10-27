@@ -2,9 +2,9 @@
 
 [English](https://github.com/queria-io/queria-cli/blob/main/README.md) | 日本語
 
-Query Japanese open data on [Queria](https://data.queria.io) from the terminal, Python, and MCP.
+Query Japanese open data on [Queria](https://data.queria.io) from the terminal and Python.
 
-[Queria](https://data.queria.io) が公開する日本のオープンデータ（e-Stat、国土数値情報、EDINET、気象庁ほか）のクライアントです。ターミナル・Python・MCP から探索でき、自分のデータセットをカタログ向けに宣言することもできます。データは DuckLake 形式で公開されており、計算はすべて手元の DuckDB で行われます。
+[Queria](https://data.queria.io) が公開する日本のオープンデータ（e-Stat、国土数値情報、EDINET、気象庁ほか）のクライアントです。ターミナルと Python から探索でき、自分のデータセットをカタログ向けに宣言することもできます。データは DuckLake 形式で公開されており、計算はすべて手元の DuckDB で行われます。
 
 ## インストール
 
@@ -154,20 +154,7 @@ queria skills install --global       # このマシンの全プロジェクト�
 
 ## MCP サーバー
 
-Claude Code / Claude Desktop / Cursor などの MCP クライアントから使えます:
-
-```json
-{
-  "mcpServers": {
-    "queria": {
-      "command": "uvx",
-      "args": ["--from", "queria[mcp]", "queria", "mcp"]
-    }
-  }
-}
-```
-
-`query` ツールは Queria のカタログに対する SELECT のみを実行します。書き込みに加えて、ローカルファイルや任意 URL を読む関数（`read_text` / `read_csv` / `glob` / `ST_Read` など）と動的 SQL（`query()`）を拒否するため、未信頼データを処理するエージェントから手元のファイル読取や内部エンドポイントへの SSRF には使えません。ローカルデータとの結合など制約のない SQL が必要な場合は CLI（`queria sql`）を使ってください。
+Queria の MCP サーバーは `https://queria.io/mcp` で動いています。MCP クライアントにこの URL を登録すれば、インストールは要りません。`queria mcp` コマンドはなくなりました。クライアントの設定にある `uvx --from 'queria[mcp]' queria mcp` を、この URL に置き換えてください。設定のしかた: https://docs.queria.io/mcp
 
 ## テレメトリ
 
@@ -206,7 +193,7 @@ queria docs show reference/cli       # 1 ページを Markdown で表示
 queria docs show reference/cli --lang ja
 ```
 
-ページは docs.queria.io から取得してキャッシュするため、接続を失った実行でも最後に読んだ内容は表示できます。MCP サーバーは同じものを `list_docs` / `show_doc` ツールとして公開しています。
+ページは docs.queria.io から取得してキャッシュするため、接続を失った実行でも最後に読んだ内容は表示できます。
 
 同じ内容をブラウザで: https://docs.queria.io/
 

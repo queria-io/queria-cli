@@ -2,6 +2,22 @@
 
 <!-- version list -->
 
+## v0.43.0 (2026-10-27)
+
+### Chores
+
+- Drop the MCP tools from the docs to keep in sync, and a stray blank line
+
+### Features
+
+- **mcp**: Remove the stdio MCP server
+
+### Breaking Changes
+
+- **mcp**: `queria mcp` and `pip install 'queria[mcp]'` no longer exist. Use the remote MCP server
+  at https://queria.io/mcp (setup: https://docs.queria.io/en/mcp).
+
+
 ## v0.42.2 (2026-10-27)
 
 ### Bug Fixes
