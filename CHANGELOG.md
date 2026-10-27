@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.42.1 (2026-10-27)
+
+### Bug Fixes
+
+- **push**: Move rows held inline out to Parquet on every push, and refuse to publish a catalog that still holds them
+
+- **push**: Leave the inline tables out of the published catalog, so DuckDB 2.0 can read it
+
+- **push**: Clean up with refreshed credentials and start the conversion from a fresh file
+
+
 ## v0.42.0 (2026-10-26)
 
 ### Bug Fixes
