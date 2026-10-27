@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.42.2 (2026-10-27)
+
+### Bug Fixes
+
+- **sync**: Push only over the catalog the build pulled, so a publish made during a long build is not replaced
+
+- **sync**: Keep the pulled ETag on a failed pull, and send storage the ETag in Queria's form
+
+
 ## v0.42.1 (2026-10-27)
 
 ### Bug Fixes
