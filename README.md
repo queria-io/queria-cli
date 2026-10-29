@@ -158,7 +158,7 @@ Queria's MCP server runs at `https://queria.io/mcp`; add that URL to your MCP cl
 
 ## Telemetry
 
-To help improve the tool, we collect anonymous usage data (command name, success/failure, version, and target dataset name). SQL contents, file paths, and personal information are never sent. Opt out with any of the following:
+To help improve the tool, we collect anonymous usage data (command name, success/failure, version, and target dataset name). File paths and personal information are never sent. The SQL you run is sent only if you say yes when the CLI asks, once, at a terminal (`queria telemetry enable --sql` / `disable --sql` change it later). Opt out of everything with any of the following:
 
 ```bash
 queria telemetry disable        # saved to the config file

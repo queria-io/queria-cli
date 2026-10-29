@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.44.0 (2026-10-29)
+
+### Bug Fixes
+
+- **telemetry**: Keep comments out of the error, never drop an event on bad UTF-8
+
+- **telemetry**: Keep comments, quoted file names and local paths out of the SQL log
+
+### Features
+
+- **telemetry**: Send the SQL queria sql runs, opt-in
+
+
 ## v0.43.0 (2026-10-27)
 
 ### Chores
