@@ -2,6 +2,45 @@
 
 <!-- version list -->
 
+## v0.45.0 (2026-11-01)
+
+### Bug Fixes
+
+- 町字IDの別名を写し、--key の並びと検索の説明を語彙にそろえる
+
+- 町字の別名から大字を外す
+
+- 語彙に無い entity のテストの例を ward にし、検索の説明の例を町丁目にそろえる
+
+- **fdl**: Address review findings on versions and push
+
+- **fdl**: Do not read a ref the store will not HEAD as an unborn branch
+
+### Build System
+
+- Depend on fdl, the new name of the package
+
+- Depend on fdl-cli from PyPI
+
+- Take fdl from its main branch until it is on PyPI
+
+### Features
+
+- 語彙を写し直し、キーに町字（town）を足す
+
+- **fdl**: Mark versions past retention as expired on push
+
+- **push**: Upload each push as an FDL version and publish it
+
+### Refactoring
+
+- Drop the fdl compatibility names from queria run
+
+- Use the fdl package instead of a copy of it
+
+- **fdl**: Move the catalog into a package that knows nothing about Queria
+
+
 ## v0.44.0 (2026-10-29)
 
 ### Bug Fixes

@@ -88,7 +88,7 @@ queria compile -o dist/dataset.json
 
 ライセンスは任意です。書かない場合は `LICENSE` ファイルのないリポジトリと同じで、権利は全て留保され、データを他人がどう扱えるかは Queria の利用規約に委ねられます（`validate` は警告で知らせます）。`--strict` を付けるとエラーだけでなく警告でも失敗します。Queria 自身のデータセットは CI でこちらを使います。
 
-データの場所は `--ducklake` / `--data-path`、素の Parquet なら `--parquet` で指定します。`fdl run` の中で走らせれば環境変数から拾います。`--manifest target/manifest.json` を渡すと dbt から lineage と展開済み SQL も取ります（`target/manifest.json` があれば自動で使います）。
+データの場所は `--ducklake` / `--data-path`、素の Parquet なら `--parquet` で指定します。`queria run` の中で走らせれば環境変数から拾います。`--manifest target/manifest.json` を渡すと dbt から lineage と展開済み SQL も取ります（`target/manifest.json` があれば自動で使います）。
 
 どの情報がどこから来るか:
 
