@@ -2,6 +2,23 @@
 
 <!-- version list -->
 
+## v0.47.0 (2026-11-03)
+
+### Bug Fixes
+
+- Name a non-default storage in the fdl helper command
+
+- **push**: Check main against the pulled version before touching storage
+
+### Features
+
+- Push and pull by FDL version instead of the catalog's ETag
+
+- Push・pull を FDL のバージョンで判定し、queria login を fdl の credential helper にする
+
+- Register queria as fdl's credential helper at login
+
+
 ## v0.46.0 (2026-11-03)
 
 ### Features
