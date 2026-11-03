@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.46.0 (2026-11-03)
+
+### Features
+
+- Call /api/reports and read the report key
+
+- Rename the page command to report
+
+
 ## v0.45.1 (2026-11-01)
 
 ### Bug Fixes
