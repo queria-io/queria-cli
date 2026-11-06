@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.49.0 (2026-11-06)
+
+### Features
+
+- Accept attachments and asset columns in the dataset declaration
+
+### Refactoring
+
+- Drop attachments from the declaration schema
+
+
 ## v0.48.0 (2026-11-04)
 
 ### Features
