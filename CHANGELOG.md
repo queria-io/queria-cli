@@ -2,6 +2,25 @@
 
 <!-- version list -->
 
+## v0.50.0 (2026-11-07)
+
+### Bug Fixes
+
+- Validate QUERIA_EXTRA_HEADERS before sending and keep our own headers
+
+### Documentation
+
+- MCP サーバーの URL を https://mcp.queria.io にする
+
+### Features
+
+- Add request headers from QUERIA_EXTRA_HEADERS
+
+- QUERIA_EXTRA_HEADERS でリクエストにヘッダーを追加する
+
+- Send a Cloudflare Access service token from QUERIA_ACCESS_CLIENT_ID/SECRET
+
+
 ## v0.49.0 (2026-11-06)
 
 ### Features

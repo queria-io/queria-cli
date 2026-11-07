@@ -154,7 +154,7 @@ queria skills install --global       # このマシンの全プロジェクト�
 
 ## MCP サーバー
 
-Queria の MCP サーバーは `https://queria.io/mcp` で動いています。MCP クライアントにこの URL を登録すれば、インストールは要りません。`queria mcp` コマンドはなくなりました。クライアントの設定にある `uvx --from 'queria[mcp]' queria mcp` を、この URL に置き換えてください。設定のしかた: https://docs.queria.io/mcp
+Queria の MCP サーバーは `https://mcp.queria.io` で動いています。MCP クライアントにこの URL を登録すれば、インストールは要りません。`queria mcp` コマンドはなくなりました。クライアントの設定にある `uvx --from 'queria[mcp]' queria mcp` を、この URL に置き換えてください。設定のしかた: https://docs.queria.io/mcp
 
 ## テレメトリ
 

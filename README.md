@@ -154,7 +154,7 @@ They go into `.agents/skills`, which Codex, Cursor, OpenCode and others read, an
 
 ## MCP server
 
-Queria's MCP server runs at `https://queria.io/mcp`; add that URL to your MCP client, with nothing to install. The `queria mcp` command has been removed: replace `uvx --from 'queria[mcp]' queria mcp` in your client's settings with the URL. Setup: https://docs.queria.io/en/mcp
+Queria's MCP server runs at `https://mcp.queria.io`; add that URL to your MCP client, with nothing to install. The `queria mcp` command has been removed: replace `uvx --from 'queria[mcp]' queria mcp` in your client's settings with the URL. Setup: https://docs.queria.io/en/mcp
 
 ## Telemetry
 
