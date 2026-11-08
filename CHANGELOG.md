@@ -2,6 +2,27 @@
 
 <!-- version list -->
 
+## v0.51.0 (2026-11-08)
+
+### Bug Fixes
+
+- Keep QUERIA_EXTRA_HEADERS off cross-host redirects and refuse duplicate or transport headers
+
+- QUERIA_EXTRA_HEADERS を別ホストへのリダイレクトに付けず、重複と転送用ヘッダーを拒否する
+
+- Validate QUERIA_EXTRA_HEADERS before sending and keep our own headers
+
+### Build System
+
+- **deps**: Bump the minor-and-patch group across 1 directory with 3 updates
+
+### Features
+
+- Add request headers from QUERIA_EXTRA_HEADERS
+
+- Send a Cloudflare Access service token from QUERIA_ACCESS_CLIENT_ID/SECRET
+
+
 ## v0.50.0 (2026-11-07)
 
 ### Bug Fixes
