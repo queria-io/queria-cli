@@ -2,6 +2,13 @@
 
 <!-- version list -->
 
+## v0.51.1 (2026-11-08)
+
+### Bug Fixes
+
+- Quote the credential_process command so paths with spaces work
+
+
 ## v0.51.0 (2026-11-08)
 
 ### Bug Fixes
