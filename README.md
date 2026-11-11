@@ -88,7 +88,7 @@ queria compile -o dist/dataset.json
 
 Licenses are optional. Leaving them out is like a repository with no `LICENSE` file: you keep every right, and what others may do with the data is left to Queria's terms of use. `validate` says so as a warning. `--strict` fails on warnings as well as errors, which is what Queria's own dataset repositories run in CI.
 
-Point it at your data with `--ducklake` / `--data-path`, or `--parquet` for plain Parquet files. Inside `queria run`, the catalog location is picked up from the environment. Pass `--manifest target/manifest.json` to also pull lineage and compiled SQL out of dbt (`target/manifest.json` is used automatically when it exists).
+Point it at your data with `--ducklake` / `--data-path`, or `--parquet` for plain Parquet files. Without them, a `dataset.yml` written for fdl (no `spec_version`) reads the catalog location from `FDL_WORKING` and `FDL_DATA_PATH`, which an fdl build sets, and one with `spec_version` reads it from `QUERIA_CATALOG_PATH` and `QUERIA_DATA_URL`. Pass `--manifest target/manifest.json` to also pull lineage and compiled SQL out of dbt (`target/manifest.json` is used automatically when it exists).
 
 Where each piece of information comes from:
 

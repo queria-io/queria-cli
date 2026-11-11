@@ -2,6 +2,28 @@
 
 <!-- version list -->
 
+## v0.53.0 (2026-11-11)
+
+### Bug Fixes
+
+- **manage**: Point create at fdl checkout and cover create and delete again
+
+### Features
+
+- Remove the commands that write a dataset's storage directly
+
+- データセットのストレージに直接書くコマンドを外す
+
+
+## v0.52.0 (2026-11-10)
+
+### Features
+
+- Fdl 形式のデータセットを queria validate で検査する
+
+- **dataset**: Depends_on で他のデータセットのテーブルを書けるようにする
+
+
 ## v0.51.1 (2026-11-08)
 
 ### Bug Fixes
