@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.54.1 (2026-11-13)
+
+### Bug Fixes
+
+- **validate**: 非公開のデータセットの前のバージョンをトークン付きで読む
+
+### Refactoring
+
+- Push 時代の secret 引数と retry 引数を消す
+
+
 ## v0.54.0 (2026-11-12)
 
 ### Features
