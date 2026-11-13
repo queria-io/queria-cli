@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.55.0 (2026-11-13)
+
+### Features
+
+- Queria org と queria auth refresh --scopes accounts:admin を追加する
+
+- Queria report/dataset share と transfer を追加
+
+- Queria star・follow・comment を追加する
+
+- 地図・ダッシュボード・データセットの変更リクエストとバージョンを CLI で扱う
+
+
 ## v0.54.1 (2026-11-13)
 
 ### Bug Fixes
