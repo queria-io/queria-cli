@@ -2,6 +2,23 @@
 
 <!-- version list -->
 
+## v0.57.0 (2026-11-14)
+
+### Bug Fixes
+
+- **cli**: Dataset share のヘルプを handle での共有に合わせる
+
+- **cli**: Say datasets can be shared with any Queria user in share help
+
+### Features
+
+- Dataset share add で admin を指定でき、dataset list --shared で共有されたデータセットを出す
+
+- Dataset share add で admin を指定でき、dataset list --shared で共有されたデータセットを出す
+
+- **chat**: 同じレポートの保存は 1 回だけ表示し、ツールの失敗を出す
+
+
 ## v0.56.0 (2026-11-14)
 
 ### Bug Fixes
