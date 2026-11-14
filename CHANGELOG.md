@@ -2,6 +2,21 @@
 
 <!-- version list -->
 
+## v0.56.0 (2026-11-14)
+
+### Bug Fixes
+
+- **chat**: Queria chat のレビューの指摘を直す
+
+- **views**: View が出す revision を応答の revision にする
+
+### Features
+
+- **chat**: Queria chat で queria.io の AI チャットを使う
+
+- **chat**: Queria chat で queria.io の AI チャットを使う
+
+
 ## v0.55.0 (2026-11-13)
 
 ### Features
