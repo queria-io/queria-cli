@@ -2,6 +2,23 @@
 
 <!-- version list -->
 
+## v0.59.0 (2026-11-15)
+
+### Bug Fixes
+
+- Data.queria.io のデータファイルを data/ から読む
+
+- Data.queria.io のメタデータの新しい名前 metadata.db から data/ を求める
+
+### Build System
+
+- Fdl-cli 0.28.0 を必須にする
+
+### Features
+
+- Queria dataset clone を追加
+
+
 ## v0.58.0 (2026-11-15)
 
 ### Features
