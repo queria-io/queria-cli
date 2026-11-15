@@ -2,6 +2,25 @@
 
 <!-- version list -->
 
+## v0.60.0 (2026-11-15)
+
+### Bug Fixes
+
+- Read issues of a public dataset without a token and follow the pages
+
+- ブランチが無い変更リクエストの branch を None の文字列にしない
+
+### Features
+
+- Add queria dataset issue to report problems in a dataset
+
+- Dataset fork と request create --head でフォークから変更リクエストを出せるようにする
+
+- Dataset request merge がマージの競合の一覧を出す
+
+- Queria dataset issue でデータセットのイシューを扱う
+
+
 ## v0.59.0 (2026-11-15)
 
 ### Bug Fixes
