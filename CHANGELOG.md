@@ -2,6 +2,13 @@
 
 <!-- version list -->
 
+## v0.58.0 (2026-11-15)
+
+### Features
+
+- Queria edit --archive / --unarchive でデータセットをアーカイブできるようにする
+
+
 ## v0.57.0 (2026-11-14)
 
 ### Bug Fixes
