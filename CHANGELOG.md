@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.62.0 (2026-11-16)
+
+### Bug Fixes
+
+- Metadata unpack が pack の前のビルドのバージョンを pack の通る形で書き戻す
+
+### Refactoring
+
+- Spec_version 付きの dataset.yml（最初の書式）の検査と組み立てを削除する
+
+
 ## v0.61.0 (2026-11-16)
 
 ### Features
