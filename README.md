@@ -33,74 +33,53 @@ Tables are referenced as `<dataset>.<schema>.<table>`. Referenced datasets are a
 
 ## Publishing a dataset
 
-`queria validate` and `queria compile` work on the metadata you declare for a dataset, turning it into `dataset.json`, the file Queria reads to list your data in the catalog. It works whether or not you build the dataset with dbt, and it never talks to the network — it only reads your declarations and your local data.
+`queria metadata` gathers the files that describe a dataset into the folder `fdl commit` makes a version from. It only converts and checks files on your machine and never talks to the network. Publishing is `fdl commit` and `fdl push`.
 
-You declare two kinds of file. Directory names are up to you.
+You write two kinds of file.
 
-| File | Content |
+| File | What it holds |
 | --- | --- |
-| `dataset.yml` (repository root, required) | the dataset itself |
-| `**/*.table.yml` (anywhere) | one table, or several |
+| `queria.yml` (repository root) | The dataset as a whole |
+| A Markdown file per table (any name, anywhere) | The table's description in the front matter, its guide below |
 
 ```yaml
-# dataset.yml
-spec_version: "0.1"
+# queria.yml
+$schema: https://queria.io/schemas/dataset/v1.json
 name: calendar
 title: Japanese calendar
-description: A date spine from 1955 to 2027 with holidays, weekdays and Japanese eras.
-language: ja
-licenses: [CC-BY-4.0]          # optional; the ID is enough, and title, URL and rights come from the registry
-contributors:
-  - title: Cabinet Office
-    roles: [rightsHolder]
+description: Every day from 1955 to 2027 with holidays, weekdays and Japanese era names
+language: en
+licenses: [CC-BY-4.0]
+cover: 📅                      # keys only Queria reads sit at the same level
+docs: [docs/usage.md]          # documents that belong to no one table, shown in this order
 ```
 
-```yaml
-# models/calendar/day.table.yml
-schema: calendar
-name: day
-title: Japanese calendar
-description: A date spine with holidays, weekdays, Japanese eras and fiscal years.
-published: true
+```markdown
+---
+$schema: https://queria.io/schemas/table/v1.json
+table: calendar.day
+title: Days
+description: One row per day
+primary_key: [date]
 fields:
   - name: date
     title: Date
+    semantic: {role: entity, name: date}
+---
+
+Holidays follow the Cabinet Office's list of national holidays.
 ```
 
-Tables that share a column layout can go in one file, so YAML anchors can carry the shared part:
-
-```yaml
-_fields: &fields
-  - { name: area, title: Area code }
-  - { name: value, title: Value, semantic: { role: measure, agg: sum } }
-tables:
-  - { schema: ssds, name: a_population, title: Population, fields: *fields }
-  - { schema: ssds, name: b_land,       title: Land,       fields: *fields }
-```
-
-**Do not write column types.** They are read from your data, so they cannot drift from it.
+Column types are not written: `fdl commit` reads them from the data. The `README.md` at the root is read as the dataset's overview.
 
 ```bash
-queria validate                    # check the declarations against the data
-queria validate --strict           # and fail on warnings too
-queria compile -o dist/dataset.json
+queria metadata validate                   # check the description against Queria's rules and your data
+queria metadata pack                       # write dataset.json, README.md and docs/ into .queria/pack/
+cd .queria/pack && fdl commit … && fdl push …
+queria metadata unpack <folder>            # write a version's description back into queria.yml and the table files
 ```
 
-Licenses are optional. Leaving them out is like a repository with no `LICENSE` file: you keep every right, and what others may do with the data is left to Queria's terms of use. `validate` says so as a warning. `--strict` fails on warnings as well as errors, which is what Queria's own dataset repositories run in CI.
-
-Point it at your data with `--ducklake` / `--data-path`, or `--parquet` for plain Parquet files. Without them, a `dataset.yml` written for fdl (no `spec_version`) reads the catalog location from `FDL_WORKING` and `FDL_DATA_PATH`, which an fdl build sets, and one with `spec_version` reads it from `QUERIA_CATALOG_PATH` and `QUERIA_DATA_URL`. Pass `--manifest target/manifest.json` to also pull lineage and compiled SQL out of dbt (`target/manifest.json` is used automatically when it exists).
-
-Where each piece of information comes from:
-
-| Information | Source |
-| --- | --- |
-| title, description, license, published, semantic roles | your declarations |
-| tables, columns, types, column order, nullability | your data |
-| lineage, compiled SQL, source file paths | dbt's `manifest.json`, when present |
-
-Without dbt you can still declare lineage with `depends_on`, and a `.sql` file next to a `*.table.yml` of the same name is picked up as the table's SQL.
-
-If you keep `*.table.yml` under dbt's `model-paths`, add `*.table.yml` to `.dbtignore` — dbt reads every `.yml` there as a properties file and would fail on these. `validate` tells you when this is missing.
+With dbt's `target/manifest.json`, `pack` adds each table's SQL and what it reads. Point at your data with `--ducklake` and `--data-path` (by default `FDL_WORKING` and `FDL_DATA_PATH`, which fdl's build sets). `--strict` fails on warnings too. Datasets written as `dataset.yml` and `*.table.yml` are read as well. `queria validate` and `queria compile` are other names for `queria metadata validate` and `pack`.
 
 ## API token
 
