@@ -33,74 +33,53 @@ queria sql "SELECT * FROM zipcode.main.zipcodes" --out zipcodes.parquet
 
 ## データセットを公開する
 
-`queria validate` と `queria compile` は、データセットに付けたメタデータを検証し、Queria がカタログに載せるために読む `dataset.json` へまとめます。dbt を使うかどうかに関わらず使えて、ネットワークにはアクセスしません（宣言と手元のデータしか読みません）。
+`queria metadata` は、データセットの説明を書いたファイルを、`fdl commit` がバージョンにするフォルダにまとめます。手元のファイルの変換と検査だけを行い、ネットワークにはアクセスしません。公開は `fdl commit` と `fdl push` で行います。
 
-書くファイルは 2 種類です。ディレクトリ名は自由です。
+書くファイルは 2 種類です。
 
 | ファイル | 内容 |
 | --- | --- |
-| `dataset.yml`（リポジトリルート・必須） | データセット自体 |
-| `**/*.table.yml`（どこでも） | テーブル 1 つ、または複数 |
+| `queria.yml`（リポジトリのルート） | データセット全体の説明 |
+| テーブルの Markdown（名前と置き場所は自由） | フロントマターにテーブルの説明、本文にガイド |
 
 ```yaml
-# dataset.yml
-spec_version: "0.1"
+# queria.yml
+$schema: https://queria.io/schemas/dataset/v1.json
 name: calendar
 title: 日本の暦データ
-description: 1955年〜2027年の日付スパインに祝日・曜日・和暦を付与
+description: 1955年〜2027年の日付に祝日・曜日・和暦を付けたデータセットです
 language: ja
-licenses: [CC-BY-4.0]          # 任意。ID だけでよく、名称・URL・権利はレジストリから入る
-contributors:
-  - title: 内閣府
-    roles: [rightsHolder]
+licenses: [CC-BY-4.0]
+cover: 📅                      # Queria の項目も同じ階層に書く
+docs: [docs/usage.md]          # テーブルに属さないドキュメント。この順に表示する
 ```
 
-```yaml
-# models/calendar/day.table.yml
-schema: calendar
-name: day
-title: 日本の暦データ
-description: 祝日・曜日・和暦・会計年度を付与した日付スパイン
-published: true
+```markdown
+---
+$schema: https://queria.io/schemas/table/v1.json
+table: calendar.day
+title: 日付
+description: 1 行が 1 日です
+primary_key: [date]
 fields:
   - name: date
     title: 日付
+    semantic: {role: entity, name: date}
+---
+
+祝日は内閣府の「国民の祝日」に従います。
 ```
 
-列構成が同じテーブルが並ぶときは 1 ファイルにまとめられます。YAML アンカーで共通部分を持てます:
-
-```yaml
-_fields: &fields
-  - { name: area, title: 地域コード }
-  - { name: value, title: 統計値, semantic: { role: measure, agg: sum } }
-tables:
-  - { schema: ssds, name: a_population, title: 人口, fields: *fields }
-  - { schema: ssds, name: b_land,       title: 自然環境, fields: *fields }
-```
-
-**列の型は書きません。** 実データから読むので、宣言と実体がずれません。
+列の型は書きません。`fdl commit` がデータから読みます。ルートの `README.md` はデータセットの概要として読みます。
 
 ```bash
-queria validate                    # 宣言と実データを突き合わせる
-queria validate --strict           # 警告も失敗として扱う
-queria compile -o dist/dataset.json
+queria metadata validate                   # 説明を Queria の規則と手元のデータで検査する
+queria metadata pack                       # .queria/pack/ に dataset.json・README.md・docs/ を書く
+cd .queria/pack && fdl commit … && fdl push …
+queria metadata unpack <フォルダ>           # バージョンの説明を queria.yml とテーブルの Markdown に書き戻す
 ```
 
-ライセンスは任意です。書かない場合は `LICENSE` ファイルのないリポジトリと同じで、権利は全て留保され、データを他人がどう扱えるかは Queria の利用規約に委ねられます（`validate` は警告で知らせます）。`--strict` を付けるとエラーだけでなく警告でも失敗します。Queria 自身のデータセットは CI でこちらを使います。
-
-データの場所は `--ducklake` / `--data-path`、素の Parquet なら `--parquet` で指定します。指定しない場合、fdl 向けの `dataset.yml`（`spec_version` なし）は fdl のビルドが設定する `FDL_WORKING` と `FDL_DATA_PATH` から、`spec_version` のある `dataset.yml` は `QUERIA_CATALOG_PATH` と `QUERIA_DATA_URL` からデータの場所を取得します。`--manifest target/manifest.json` を渡すと dbt から lineage と展開済み SQL も取ります（`target/manifest.json` があれば自動で使います）。
-
-どの情報がどこから来るか:
-
-| 情報 | 供給元 |
-| --- | --- |
-| title・description・ライセンス・公開可否・semantic | 宣言 |
-| テーブル・列・型・列順・NULL 許容 | 実データ |
-| lineage・展開済み SQL・ソースファイルのパス | dbt の `manifest.json`（あれば） |
-
-dbt がなくても、lineage は `depends_on` で書け、`*.table.yml` と同名の `.sql` があればそのテーブルの SQL として拾われます。
-
-`*.table.yml` を dbt の `model-paths` 配下に置く場合は `.dbtignore` に `*.table.yml` を足してください。dbt はそこにある `.yml` を全部自分の properties ファイルとして読むため、そのままだと失敗します。`validate` が知らせます。
+`pack` は dbt の `target/manifest.json` があれば各テーブルの SQL と依存先を入れます。手元のデータは `--ducklake` と `--data-path`（既定は fdl のビルドが設定する `FDL_WORKING` と `FDL_DATA_PATH`）で指定します。`--strict` を付けると警告でも失敗します。`dataset.yml` と `*.table.yml` で書いたデータセットも読めます。`queria validate` と `queria compile` は `queria metadata validate` と `pack` の別名です。
 
 ## API トークン
 

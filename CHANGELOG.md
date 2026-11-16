@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.61.0 (2026-11-16)
+
+### Features
+
+- Queria metadata pack・unpack・validate を追加し、queria export を削除する
+
+- データファイルを data.queria.io の tables/ から読む
+
+
 ## v0.60.0 (2026-11-15)
 
 ### Bug Fixes
