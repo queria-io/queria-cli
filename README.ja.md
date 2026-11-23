@@ -33,53 +33,13 @@ queria sql "SELECT * FROM zipcode.main.zipcodes" --out zipcodes.parquet
 
 ## データセットを公開する
 
-`queria metadata` は、データセットの説明を書いたファイルを、`fdl commit` がバージョンにするフォルダにまとめます。手元のファイルの変換と検査だけを行い、ネットワークにはアクセスしません。公開は `fdl commit` と `fdl push` で行います。
-
-書くファイルは 2 種類です。
-
-| ファイル | 内容 |
-| --- | --- |
-| `queria.yml`（リポジトリのルート） | データセット全体の説明 |
-| テーブルの Markdown（名前と置き場所は自由） | フロントマターにテーブルの説明、本文にガイド |
-
-```yaml
-# queria.yml
-$schema: https://queria.io/schemas/dataset/v1.json
-name: calendar
-title: 日本の暦データ
-description: 1955年〜2027年の日付に祝日・曜日・和暦を付けたデータセットです
-language: ja
-licenses: [CC-BY-4.0]
-cover: 📅                      # Queria の項目も同じ階層に書く
-docs: [docs/usage.md]          # テーブルに属さないドキュメント。この順に表示する
-```
-
-```markdown
----
-$schema: https://queria.io/schemas/table/v1.json
-table: calendar.day
-title: 日付
-description: 1 行が 1 日です
-primary_key: [date]
-fields:
-  - name: date
-    title: 日付
-    semantic: {role: entity, name: date}
----
-
-祝日は内閣府の「国民の祝日」に従います。
-```
-
-列の型は書きません。`fdl commit` がデータから読みます。ルートの `README.md` はデータセットの概要として読みます。
+データセットは [fdl](https://fdl.queria.io) で作るバージョンです（`fdl commit` と `fdl push`）。説明は YAML と Markdown で書き、[tabledoc](https://github.com/queria-io/tabledoc) でバージョンに入れます。
 
 ```bash
-queria metadata validate                   # 説明を Queria の規則と手元のデータで検査する
-queria metadata pack                       # .queria/pack/ に dataset.json・README.md・docs/ を書く
-cd .queria/pack && fdl commit … && fdl push …
-queria metadata unpack <フォルダ>           # バージョンの説明を queria.yml とテーブルの Markdown に書き戻す
+tabledoc validate                                  # 説明を検査する
+tabledoc load --out .fdl/pack                      # 作業カタログの _meta スキーマに書く
+fdl commit … --dataset .fdl/pack/dataset.json --assets .fdl/pack/assets && fdl push …
 ```
-
-`pack` は dbt の `target/manifest.json` があれば各テーブルの SQL と依存先を入れます。手元のデータは `--ducklake` と `--data-path`（既定は fdl のビルドが設定する `FDL_WORKING` と `FDL_DATA_PATH`）で指定します。`--strict` を付けると警告でも失敗します。`dataset.yml` と `*.table.yml` で書いたデータセットも読めます。`queria validate` と `queria compile` は `queria metadata validate` と `pack` の別名です。
 
 ## API トークン
 
