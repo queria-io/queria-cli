@@ -2,6 +2,46 @@
 
 <!-- version list -->
 
+## v0.65.0 (2026-11-23)
+
+### Bug Fixes
+
+- 前の名前の宣言をテーブルが無くても見分け、entity は文字列のときだけ置く
+
+### Features
+
+- Info・tables・columns の名前を tabledoc にそろえる
+
+
+## v0.64.0 (2026-11-23)
+
+### Documentation
+
+- Publish steps use tabledoc.yml, _tabledoc and fdl commit --assets
+
+- Publish steps use tabledoc.yml, _tabledoc and fdl commit --assets
+
+### Features
+
+- Drop duplicate commands and give each option one spelling
+
+- Drop duplicate commands and give each option one spelling
+
+- 重なっていたコマンドを削除し、引数の形を 1 つにそろえる
+
+### Testing
+
+- Check that the removed commands are refused
+
+- 削除したコマンドが拒否されることを確認する
+
+### Breaking Changes
+
+- Queria create, edit and delete are only under queria dataset; queria dataset view, the page alias
+  and the top-level comment are removed (queria info and queria report comment remain); dataset edit
+  takes --public or
+
+
 ## v0.63.0 (2026-11-23)
 
 ### Bug Fixes
