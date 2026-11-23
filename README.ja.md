@@ -4,7 +4,7 @@
 
 Query Japanese open data on [Queria](https://data.queria.io) from the terminal and Python.
 
-[Queria](https://data.queria.io) が公開する日本のオープンデータ（e-Stat、国土数値情報、EDINET、気象庁ほか）のクライアントです。ターミナルと Python から探索でき、自分のデータセットをカタログ向けに宣言することもできます。データは DuckLake 形式で公開されており、計算はすべて手元の DuckDB で行われます。
+[Queria](https://data.queria.io) が公開する日本のオープンデータ（e-Stat、国土数値情報、EDINET、気象庁ほか）のクライアントです。ターミナルと Python から探索でき、自分のデータセットを作成・管理することもできます。データは DuckLake 形式で公開されており、計算はすべて手元の DuckDB で行われます。
 
 ## インストール
 
@@ -33,13 +33,16 @@ queria sql "SELECT * FROM zipcode.main.zipcodes" --out zipcodes.parquet
 
 ## データセットを公開する
 
-データセットは [fdl](https://fdl.queria.io) で作るバージョンです（`fdl commit` と `fdl push`）。説明は YAML と Markdown で書き、[tabledoc](https://github.com/queria-io/tabledoc) でバージョンに入れます。
+データセットは [fdl](https://fdl.queria.io) で作るバージョンです（`fdl commit` と `fdl push`）。説明は `tabledoc.yml` とテーブルごとの `<テーブル>.tabledoc.yml` に書き、[tabledoc](https://tabledoc.queria.io) でバージョンに入れます。
 
 ```bash
-tabledoc validate                                  # 説明を検査する
-tabledoc load --out .fdl/pack                      # 作業カタログの _meta スキーマに書く
-fdl commit … --dataset .fdl/pack/dataset.json --assets .fdl/pack/assets && fdl push …
+queria dataset create my-dataset                             # 登録する（--public を付けないと非公開）
+queria dataset clone my-dataset .fdl/work.sqlite             # 作業用カタログを作り、テーブルを書き込む
+tabledoc load --ducklake .fdl/work.sqlite --out build/assets # 説明を検査して _tabledoc スキーマに書く
+fdl commit .fdl/work.sqlite --assets build/assets -m "Build" && fdl push .fdl/work.sqlite
 ```
+
+手順の全体は[データを公開する](https://docs.queria.io/publish)を参照してください。
 
 ## API トークン
 

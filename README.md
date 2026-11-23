@@ -4,7 +4,7 @@ English | [日本語](https://github.com/queria-io/queria-cli/blob/main/README.j
 
 Query Japanese open data on [Queria](https://data.queria.io) from the terminal and Python.
 
-A client for the Japanese open data published on [Queria](https://data.queria.io) — e-Stat, National Land Numerical Information, EDINET, the Japan Meteorological Agency, and more. Explore it from the terminal and Python, and declare your own datasets for the catalog. The data is published in DuckLake format, and all computation runs locally in DuckDB.
+A client for the Japanese open data published on [Queria](https://data.queria.io) — e-Stat, National Land Numerical Information, EDINET, the Japan Meteorological Agency, and more. Explore it from the terminal and Python, and create and manage your own datasets. The data is published in DuckLake format, and all computation runs locally in DuckDB.
 
 ## Installation
 
@@ -33,13 +33,16 @@ Tables are referenced as `<dataset>.<schema>.<table>`. Referenced datasets are a
 
 ## Publishing a dataset
 
-A dataset is a version made with [fdl](https://fdl.queria.io) (`fdl commit` and `fdl push`). Its description is written in YAML and Markdown and put into the version with [tabledoc](https://github.com/queria-io/tabledoc):
+A dataset is a version made with [fdl](https://fdl.queria.io) (`fdl commit` and `fdl push`). Its description is written in `tabledoc.yml` and a `<table>.tabledoc.yml` per table, and put into the version with [tabledoc](https://tabledoc.queria.io):
 
 ```bash
-tabledoc validate                                  # check the description
-tabledoc load --out .fdl/pack                      # write it into the working catalog's _meta schema
-fdl commit … --dataset .fdl/pack/dataset.json --assets .fdl/pack/assets && fdl push …
+queria dataset create my-dataset                             # register it (private unless you pass --public)
+queria dataset clone my-dataset .fdl/work.sqlite             # make a working catalog, then write your tables into it
+tabledoc load --ducklake .fdl/work.sqlite --out build/assets # check the description and write it into the _tabledoc schema
+fdl commit .fdl/work.sqlite --assets build/assets -m "Build" && fdl push .fdl/work.sqlite
 ```
+
+See [Publish data](https://docs.queria.io/en/publish) for the whole procedure.
 
 ## API token
 
