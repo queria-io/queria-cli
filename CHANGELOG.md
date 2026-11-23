@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.65.1 (2026-11-23)
+
+### Bug Fixes
+
+- Attach a dependency's metadata.db by its fixed name
+
+- Require fdl-cli 0.38 for versions without a metadata path
+
+
 ## v0.65.0 (2026-11-23)
 
 ### Bug Fixes
