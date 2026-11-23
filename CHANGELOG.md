@@ -2,6 +2,26 @@
 
 <!-- version list -->
 
+## v0.65.1 (2026-11-23)
+
+### Bug Fixes
+
+- Attach a dependency's metadata.db by its fixed name
+
+- Require fdl-cli 0.38 for versions without a metadata path
+
+
+## v0.65.0 (2026-11-23)
+
+### Bug Fixes
+
+- 前の名前の宣言をテーブルが無くても見分け、entity は文字列のときだけ置く
+
+### Features
+
+- Info・tables・columns の名前を tabledoc にそろえる
+
+
 ## v0.64.0 (2026-11-23)
 
 ### Documentation
