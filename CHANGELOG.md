@@ -2,6 +2,23 @@
 
 <!-- version list -->
 
+## v0.63.0 (2026-11-23)
+
+### Bug Fixes
+
+- 古いバージョンの指定で、空の @・ローカルのカタログ・無いデータセットを正しく伝える
+
+### Features
+
+- --datasets 'name@<version ID or tag>' と attach(version=) で古いバージョンを読む
+
+- Queria metadata・validate・compile を削除する
+
+- Report create/edit が本文の画像を送り、GitHub Actions では OIDC でトークンを取る
+
+- ビューが読む他のデータセットを tables.json の dependencies が固定したバージョンで ATTACH する
+
+
 ## v0.62.0 (2026-11-16)
 
 ### Bug Fixes

@@ -33,53 +33,13 @@ Tables are referenced as `<dataset>.<schema>.<table>`. Referenced datasets are a
 
 ## Publishing a dataset
 
-`queria metadata` gathers the files that describe a dataset into the folder `fdl commit` makes a version from. It only converts and checks files on your machine and never talks to the network. Publishing is `fdl commit` and `fdl push`.
-
-You write two kinds of file.
-
-| File | What it holds |
-| --- | --- |
-| `queria.yml` (repository root) | The dataset as a whole |
-| A Markdown file per table (any name, anywhere) | The table's description in the front matter, its guide below |
-
-```yaml
-# queria.yml
-$schema: https://queria.io/schemas/dataset/v1.json
-name: calendar
-title: Japanese calendar
-description: Every day from 1955 to 2027 with holidays, weekdays and Japanese era names
-language: en
-licenses: [CC-BY-4.0]
-cover: 📅                      # keys only Queria reads sit at the same level
-docs: [docs/usage.md]          # documents that belong to no one table, shown in this order
-```
-
-```markdown
----
-$schema: https://queria.io/schemas/table/v1.json
-table: calendar.day
-title: Days
-description: One row per day
-primary_key: [date]
-fields:
-  - name: date
-    title: Date
-    semantic: {role: entity, name: date}
----
-
-Holidays follow the Cabinet Office's list of national holidays.
-```
-
-Column types are not written: `fdl commit` reads them from the data. The `README.md` at the root is read as the dataset's overview.
+A dataset is a version made with [fdl](https://fdl.queria.io) (`fdl commit` and `fdl push`). Its description is written in YAML and Markdown and put into the version with [tabledoc](https://github.com/queria-io/tabledoc):
 
 ```bash
-queria metadata validate                   # check the description against Queria's rules and your data
-queria metadata pack                       # write dataset.json, README.md and docs/ into .queria/pack/
-cd .queria/pack && fdl commit … && fdl push …
-queria metadata unpack <folder>            # write a version's description back into queria.yml and the table files
+tabledoc validate                                  # check the description
+tabledoc load --out .fdl/pack                      # write it into the working catalog's _meta schema
+fdl commit … --dataset .fdl/pack/dataset.json --assets .fdl/pack/assets && fdl push …
 ```
-
-With dbt's `target/manifest.json`, `pack` adds each table's SQL and what it reads. Point at your data with `--ducklake` and `--data-path` (by default `FDL_WORKING` and `FDL_DATA_PATH`, which fdl's build sets). `--strict` fails on warnings too. Datasets written as `dataset.yml` and `*.table.yml` are read as well. `queria validate` and `queria compile` are other names for `queria metadata validate` and `pack`.
 
 ## API token
 
