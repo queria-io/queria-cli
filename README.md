@@ -20,7 +20,7 @@ Requires Python 3.10+.
 ```bash
 queria list                              # list datasets
 queria search 人口                        # search datasets, tables and columns
-queria search --column 町丁目 --column 人口  # tables holding both columns
+queria search --col 町丁目 --col 人口       # tables holding both columns
 queria info e_stat                       # metadata (license, source, etc.)
 queria schema e_stat                     # list tables
 queria columns e_stat mart_population    # list columns
@@ -73,7 +73,7 @@ import queria
 # what is published, and what is in it
 queria.list_datasets()
 queria.search("population")
-queria.search(columns=["町丁目", "人口"], geo=True)
+queria.search({"col": ["町丁目", "人口"], "has": ["location"]})
 queria.tables("calendar")
 queria.columns("calendar", "day")
 
