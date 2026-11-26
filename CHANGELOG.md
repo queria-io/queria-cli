@@ -2,6 +2,35 @@
 
 <!-- version list -->
 
+## v0.66.0 (2026-11-26)
+
+### Bug Fixes
+
+- Report a failed range lookup in queria columns, and list a view's measured columns
+
+- Search の条件で 1 つの文字列と空の値を正しく扱う
+
+### Chores
+
+- 使っていない import を削除
+
+### Features
+
+- Info にデータセットのリポジトリを出す
+
+- Queria columns でテーブルを指定したとき列ごとの値の範囲を表示する
+
+- Search に --value を追加し、値で表を絞り込めるようにする
+
+- Search の条件を JSON で送る
+
+- Search の条件を画面の検索と同じ修飾子で書く
+
+- Show each column's range in `queria columns <dataset> <table>`
+
+- Show the dataset's repository in info
+
+
 ## v0.65.1 (2026-11-23)
 
 ### Bug Fixes
